@@ -166,14 +166,14 @@ async function notifyUpdate(): Promise<void> {
 
       console.log()
       console.log(
-        chalk.yellow.bold('A new version of `create-trpc-app` is available!')
+        chalk.yellow.bold('A new version of `create-trpc-appx` is available!')
       )
       console.log(
         'You can update by running: ' +
           chalk.cyan(
             pkgManager === 'yarn'
-              ? 'yarn global add create-trpc-app'
-              : `${pkgManager} install --global create-trpc-app`
+              ? 'yarn global add create-trpc-appx'
+              : `${pkgManager} install --global create-trpc-appx`
           )
       )
       console.log()

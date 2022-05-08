@@ -10,5 +10,5 @@
     "skipLibCheck": true,
     "outDir": "dist",
   },
-  "exclude": ["templates", "dist"]
+  "exclude": ["templates", "dist", "package"]
 }
