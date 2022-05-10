@@ -130,7 +130,6 @@ export async function createApp({
      * If an example repository is provided, clone it.
      */
     try {
-      console.log("🚀 ~ file: create-app.ts ~ line 135 ~ repoInfo", repoInfo)
       if (repoInfo) {
         const repoInfo2 = repoInfo;
         console.log(
