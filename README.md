@@ -11,7 +11,7 @@
 <br />
 <div align="center">
   <a href="https://github.com/omar-dulaimi/create-trpc-app">
-    <img src="https://raw.githubusercontent.com/omar-dulaimi/create-trpc-app/master/logo.png" alt="Logo" width="120" height="100">
+    <img src="https://raw.githubusercontent.com/omar-dulaimi/create-trpc-app/master/logo.png" alt="Logo" width="150" height="150">
   </a>
 
   <h3 align="center">Create tRPC App</h3>
