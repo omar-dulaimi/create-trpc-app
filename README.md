@@ -119,6 +119,8 @@ pnpm create-trpc-appx blog-app
 
 This project has been based on Create Next App, so a huge thank you goes to every and single one who worked on it.
 
+Attribution for one of the icons used in the logo: <a href="https://www.flaticon.com/free-icons/design" title="design icons">Design icons created by monkik - Flaticon</a>
+
 <p align="right">(<a href="#top">back to top</a>)</p>
 
 <!-- MARKDOWN LINKS & IMAGES -->
