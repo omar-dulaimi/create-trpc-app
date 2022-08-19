@@ -79,9 +79,9 @@ To get started, use the following command:
 ```bash
 npx create-trpc-appx@latest
 # or
-yarn create-trpc-appx
+yarn create trpc-appx
 # or
-pnpm create-trpc-appx
+pnpm create trpc-appx
 ```
 
 To create a new app in a specific folder, you can send a name as an argument. For example, the following command will create a new tRPC app called `blog-app` in a folder with the same name:
@@ -89,9 +89,9 @@ To create a new app in a specific folder, you can send a name as an argument. Fo
 ```bash
 npx create-trpc-appx@latest blog-app
 # or
-yarn create-trpc-appx blog-app
+yarn create trpc-appx blog-app
 # or
-pnpm create-trpc-appx blog-app
+pnpm create trpc-appx blog-app
 ```
 
 <p align="right">(<a href="#top">back to top</a>)</p>
@@ -104,8 +104,8 @@ pnpm create-trpc-appx blog-app
 
 - **-e, --example [name]|[github-url]** - An example to bootstrap the app with. You can use an example name from the [tRPC repo](https://github.com/trpc/trpc/tree/main/examples) or a GitHub URL. The URL can use any branch and/or subdirectory.
 - **--example-path &lt;path-to-example&gt;** - In a rare case, your GitHub URL might contain a branch name with a slash (e.g. bug/fix-1) and the path to the example (e.g. foo/bar). In this case, you must specify the path to the example separately: `--example-path foo/bar`
-- **--use-npm** - Explicitly tell the CLI to bootstrap the app using npm. To bootstrap using yarn we recommend to run `yarn create-trpc-appx`
-- **--use-pnpm** - Explicitly tell the CLI to bootstrap the app using pnpm. To bootstrap using pnpm we recommend running `pnpm create-trpc-appx`
+- **--use-npm** - Explicitly tell the CLI to bootstrap the app using npm. To bootstrap using yarn we recommend to run `yarn create trpc-appx`
+- **--use-pnpm** - Explicitly tell the CLI to bootstrap the app using pnpm. To bootstrap using pnpm we recommend running `pnpm create trpc-appx`
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
