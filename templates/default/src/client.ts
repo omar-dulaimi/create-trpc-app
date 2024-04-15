@@ -1,70 +1,74 @@
-import { createTRPCClient } from "@trpc/client";
-import { httpBatchLink } from "@trpc/client/links/httpBatchLink";
-import { loggerLink } from "@trpc/client/links/loggerLink";
-import AbortController from "abort-controller";
-import fetch from "node-fetch";
-import type { AppRouter } from "./server";
-
-// polyfill
-global.AbortController = AbortController;
-global.fetch = fetch as any;
+import { createTRPCProxyClient, httpBatchLink, loggerLink } from '@trpc/client';
+import { tap } from '@trpc/server/observable';
+import type { AppRouter } from './server';
 
 const sleep = (ms = 100) => new Promise((resolve) => setTimeout(resolve, ms));
 
 async function main() {
   const url = `http://localhost:2021/trpc`;
 
-  const client = createTRPCClient<AppRouter>({
+  const trpc = createTRPCProxyClient<AppRouter>({
     links: [
       () =>
-        ({ op, prev, next }) => {
-          console.log("->", op.type, op.path, op.input);
+        ({ op, next }) => {
+          console.log('->', op.type, op.path, op.input);
 
-          return next(op, (result) => {
-            console.log("<-", op.type, op.path, op.input, ":", result);
-            prev(result);
-          });
+          return next(op).pipe(
+            tap({
+              next(result) {
+                console.log('<-', op.type, op.path, op.input, ':', result);
+              },
+            }),
+          );
         },
       httpBatchLink({ url }),
     ],
   });
+
   await sleep();
 
   // parallel queries
   await Promise.all([
     //
-    client.query("hello"),
-    client.query("hello", "client"),
+    trpc.hello.query(),
+    trpc.hello.query('client'),
   ]);
 
-  await sleep();
-  const postCreate = await client.mutation("post.create", {
-    title: "hello client",
+  const postCreate = await trpc.post.createPost.mutate({
+    title: 'hello client',
   });
-  console.log("created post", postCreate.title);
+  console.log('created post', postCreate.title);
   await sleep();
-  const postList = await client.query("post.list");
-  console.log("has posts", postList, "first:", postList[0].title);
+
+  const postList = await trpc.post.listPosts.query();
+  console.log('has posts', postList, 'first:', postList[0].title);
   await sleep();
+
   try {
-    await client.query("admin.secret");
+    await trpc.admin.secret.query();
   } catch (cause) {
     // will fail
   }
   await sleep();
-  const authedClient = createTRPCClient<AppRouter>({
-    links: [loggerLink(), httpBatchLink({ url })],
-    headers: () => ({
-      authorization: "secret",
-    }),
+
+  const authedClient = createTRPCProxyClient<AppRouter>({
+    links: [
+      loggerLink(),
+      httpBatchLink({
+        url,
+        headers: () => ({
+          authorization: 'secret',
+        }),
+      }),
+    ],
   });
 
-  await authedClient.query("admin.secret");
+  await authedClient.admin.secret.query();
 
-  const msgs = await client.query("messages.list");
-  console.log("msgs", msgs);
+  const msgs = await trpc.message.listMessages.query();
+  console.log('msgs', msgs);
 
-  console.log("👌 should be a clean exit if everything is working right");
+  console.log('👌 should be a clean exit if everything is working right');
 }
 
-main();
+void main();
