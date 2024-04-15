@@ -6,7 +6,6 @@ Please see the [contributing guidelines](https://github.com/omar-dulaimi/create-
 >
 > Provide details that support your chosen implementation, including: breaking changes, alternatives considered, changes to the API, etc.
 >
-> If the UI is being changed, please provide screenshots.
 
 
 ### References
