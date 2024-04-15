@@ -1,40 +1,40 @@
 #!/usr/bin/env node
 /* eslint-disable import/no-extraneous-dependencies */
-import chalk from 'chalk'
-import Commander from 'commander'
-import path from 'path'
-import prompts from 'prompts'
-import checkForUpdate from 'update-check'
-import { createApp, DownloadError } from './create-app'
-import { getPkgManager } from './helpers/get-pkg-manager'
-import { validateNpmName } from './helpers/validate-pkg'
-import packageJson from './package.json'
+import { Command } from "@commander-js/extra-typings";
+import chalk from "chalk";
+import path from "path";
+import prompts from "prompts";
+import checkForUpdate from "update-check";
+import { createApp, DownloadError } from "./create-app";
+import { getPkgManager } from "./helpers/get-pkg-manager";
+import { validateNpmName } from "./helpers/validate-pkg";
+import packageJson from "./package.json";
 
-let projectPath: string = ''
+let projectPath: string = "";
 
-const program = new Commander.Command(packageJson.name)
+const program = new Command(packageJson.name)
   .version(packageJson.version)
-  .arguments('<project-directory>')
-  .usage(`${chalk.green('<project-directory>')} [options]`)
+  .arguments("<project-directory>")
+  .usage(`${chalk.green("<project-directory>")} [options]`)
   .action((name) => {
-    projectPath = name
+    projectPath = name;
   })
   .option(
-    '--use-npm',
+    "--use-npm",
     `
 
   Explicitly tell the CLI to bootstrap the app using npm
 `
   )
   .option(
-    '--use-pnpm',
+    "--use-pnpm",
     `
 
   Explicitly tell the CLI to bootstrap the app using pnpm
 `
   )
   .option(
-    '-e, --example [name]|[github-url]',
+    "-e, --example [name]|[github-url]",
     `
 
   An example to bootstrap the app with. You can use an example name
@@ -43,7 +43,7 @@ const program = new Commander.Command(packageJson.name)
 `
   )
   .option(
-    '--example-path <path-to-example>',
+    "--example-path <path-to-example>",
     `
 
   In a rare case, your GitHub URL might contain a branch name with
@@ -53,132 +53,137 @@ const program = new Commander.Command(packageJson.name)
 `
   )
   .allowUnknownOption()
-  .parse(process.argv)
+  .parse(process.argv);
 
 async function run(): Promise<void> {
-  if (typeof projectPath === 'string') {
-    projectPath = projectPath.trim()
+  if (typeof projectPath === "string") {
+    projectPath = projectPath.trim();
   }
 
   if (!projectPath) {
     const res = await prompts({
-      type: 'text',
-      name: 'path',
-      message: 'What is your project named?',
-      initial: 'my-app',
+      type: "text",
+      name: "path",
+      message: "What is your project named?",
+      initial: "my-app",
       validate: (name) => {
-        const validation = validateNpmName(path.basename(path.resolve(name)))
+        const validation = validateNpmName(path.basename(path.resolve(name)));
         if (validation.valid) {
-          return true
+          return true;
         }
-        return 'Invalid project name: ' + validation.problems![0]
+        return "Invalid project name: " + validation.problems![0];
       },
-    })
+    });
 
-    if (typeof res.path === 'string') {
-      projectPath = res.path.trim()
+    if (typeof res.path === "string") {
+      projectPath = res.path.trim();
     }
   }
 
   if (!projectPath) {
-    console.log()
-    console.log('Please specify the project directory:')
+    console.log();
+    console.log("Please specify the project directory:");
     console.log(
-      `  ${chalk.cyan(program.name())} ${chalk.green('<project-directory>')}`
-    )
-    console.log()
-    console.log('For example:')
-    console.log(`  ${chalk.cyan(program.name())} ${chalk.green('my-trpc-app')}`)
-    console.log()
+      `  ${chalk.cyan(program.name())} ${chalk.green("<project-directory>")}`
+    );
+    console.log();
+    console.log("For example:");
+    console.log(
+      `  ${chalk.cyan(program.name())} ${chalk.green("my-trpc-app")}`
+    );
+    console.log();
     console.log(
       `Run ${chalk.cyan(`${program.name()} --help`)} to see all options.`
-    )
-    process.exit(1)
+    );
+    process.exit(1);
   }
 
-  const resolvedProjectPath = path.resolve(projectPath)
-  const projectName = path.basename(resolvedProjectPath)
+  const resolvedProjectPath = path.resolve(projectPath);
+  const projectName = path.basename(resolvedProjectPath);
 
-  const { valid, problems } = validateNpmName(projectName)
+  const { valid, problems } = validateNpmName(projectName);
   if (!valid) {
     console.error(
       `Could not create a project called ${chalk.red(
         `"${projectName}"`
       )} because of npm naming restrictions:`
-    )
+    );
 
-    problems!.forEach((p) => console.error(`    ${chalk.red.bold('*')} ${p}`))
-    process.exit(1)
+    problems!.forEach((p) => console.error(`    ${chalk.red.bold("*")} ${p}`));
+    process.exit(1);
   }
 
-  if (program.example === true) {
+  if (program.getOptionValue("example") === true) {
     console.error(
-      'Please provide an example name or url, otherwise remove the example option.'
-    )
-    process.exit(1)
+      "Please provide an example name or url, otherwise remove the example option."
+    );
+    process.exit(1);
   }
 
-  const packageManager = !!program.useNpm
-    ? 'npm'
-    : !!program.usePnpm
-    ? 'pnpm'
-    : getPkgManager()
+  const packageManager = !!program.getOptionValue("useNpm")
+    ? "npm"
+    : !!program.getOptionValue("usePnpm")
+    ? "pnpm"
+    : getPkgManager();
 
-  const example = typeof program.example === 'string' && program.example.trim()
+  const example =
+    typeof program.getOptionValue("example") === "string" &&
+    (program.getOptionValue("example") ?? "")?.toString().trim();
+
   try {
     await createApp({
       appPath: resolvedProjectPath,
       packageManager,
-      example: example && example !== 'default' ? example : undefined,
-      examplePath: program.examplePath,
-    })
+      example: example && example !== "default" ? example : undefined,
+      examplePath: program.getOptionValue("examplePath"),
+    });
   } catch (reason) {
     if (!(reason instanceof DownloadError)) {
-      throw reason
+      throw reason;
     }
 
     const res = await prompts({
-      type: 'confirm',
-      name: 'builtin',
+      type: "confirm",
+      name: "builtin",
       message:
         `Could not download "${example}" because of a connectivity issue between your machine and GitHub.\n` +
         `Do you want to use the default template instead?`,
       initial: true,
-    })
+    });
     if (!res.builtin) {
-      throw reason
+      throw reason;
     }
 
     await createApp({
       appPath: resolvedProjectPath,
       packageManager,
-    })
+    });
   }
 }
 
-const update = checkForUpdate(packageJson).catch(() => null)
+const update = checkForUpdate(packageJson).catch(() => null);
 
 async function notifyUpdate(): Promise<void> {
   try {
-    const res = await update
+    const res = await update;
     if (res?.latest) {
-      const pkgManager = getPkgManager()
+      const pkgManager = getPkgManager();
 
-      console.log()
+      console.log();
       console.log(
-        chalk.yellow.bold('A new version of `create-trpc-appx` is available!')
-      )
+        chalk.yellow.bold("A new version of `create-trpc-appx` is available!")
+      );
       console.log(
-        'You can update by running: ' +
+        "You can update by running: " +
           chalk.cyan(
-            pkgManager === 'yarn'
-              ? 'yarn global add create-trpc-appx'
+            pkgManager === "yarn"
+              ? "yarn global add create-trpc-appx"
               : `${pkgManager} install --global create-trpc-appx`
           )
-      )
-      console.log()
+      );
+      console.log();
     }
-    process.exit()
+    process.exit();
   } catch {
     // ignore error
   }
@@ -187,17 +192,17 @@ async function notifyUpdate(): Promise<void> {
 run()
   .then(notifyUpdate)
   .catch(async (reason) => {
-    console.log()
-    console.log('Aborting installation.')
+    console.log();
+    console.log("Aborting installation.");
     if (reason.command) {
-      console.log(`  ${chalk.cyan(reason.command)} has failed.`)
+      console.log(`  ${chalk.cyan(reason.command)} has failed.`);
     } else {
-      console.log(chalk.red('Unexpected error. Please report it as a bug:'))
-      console.log(reason)
+      console.log(chalk.red("Unexpected error. Please report it as a bug:"));
+      console.log(reason);
     }
-    console.log()
+    console.log();
 
-    await notifyUpdate()
+    await notifyUpdate();
 
-    process.exit(1)
-  })
+    process.exit(1);
+  });

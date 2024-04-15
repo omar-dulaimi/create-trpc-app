@@ -12,13 +12,13 @@ import {
   hasRepo,
   RepoInfo,
 } from "./helpers/examples";
-import { makeDir } from "./helpers/make-dir";
+import type { PackageManager } from "./helpers/get-pkg-manager";
 import { tryGitInit } from "./helpers/git";
 import { install } from "./helpers/install";
 import { isFolderEmpty } from "./helpers/is-folder-empty";
 import { getOnline } from "./helpers/is-online";
 import { isWriteable } from "./helpers/is-writeable";
-import type { PackageManager } from "./helpers/get-pkg-manager";
+import { makeDir } from "./helpers/make-dir";
 
 export class DownloadError extends Error {}
 
@@ -247,7 +247,6 @@ export async function createApp({
      * Copy the template files to the target directory.
      */
     await cpy("**", root, {
-      parents: true,
       cwd: path.join(__dirname, "templates", template),
       rename: (name) => {
         switch (name) {
