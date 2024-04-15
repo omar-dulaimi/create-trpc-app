@@ -4,6 +4,7 @@ import chalk from "chalk";
 import cpy from "cpy";
 import fs from "fs";
 import path from "path";
+import { fileURLToPath } from "url";
 import {
   downloadAndExtractExample,
   downloadAndExtractRepo,
@@ -11,14 +12,15 @@ import {
   hasExample,
   hasRepo,
   RepoInfo,
-} from "./helpers/examples";
-import type { PackageManager } from "./helpers/get-pkg-manager";
-import { tryGitInit } from "./helpers/git";
-import { install } from "./helpers/install";
-import { isFolderEmpty } from "./helpers/is-folder-empty";
-import { getOnline } from "./helpers/is-online";
-import { isWriteable } from "./helpers/is-writeable";
-import { makeDir } from "./helpers/make-dir";
+} from "./helpers/examples.js";
+import type { PackageManager } from "./helpers/get-pkg-manager.js";
+import { tryGitInit } from "./helpers/git.js";
+import { install } from "./helpers/install.js";
+import { isFolderEmpty } from "./helpers/is-folder-empty.js";
+import { getOnline } from "./helpers/is-online.js";
+import { isWriteable } from "./helpers/is-writeable.js";
+import { makeDir } from "./helpers/make-dir.js";
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 export class DownloadError extends Error {}
 

@@ -1,7 +1,7 @@
 /* eslint-disable import/no-extraneous-dependencies */
 import { execSync } from 'child_process'
 import path from 'path'
-import rimraf from 'rimraf'
+import * as rimraf from 'rimraf'
 
 function isInGitRepository(): boolean {
   try {

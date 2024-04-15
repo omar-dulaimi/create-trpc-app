@@ -1,7 +1,7 @@
 /* eslint-disable import/no-extraneous-dependencies */
 import got from "got";
 import { pipeline } from "stream/promises";
-import tar from "tar";
+import * as tar from "tar";
 
 export type RepoInfo = {
   username: string;

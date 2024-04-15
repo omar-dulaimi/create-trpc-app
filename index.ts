@@ -1,18 +1,18 @@
 #!/usr/bin/env node
 /* eslint-disable import/no-extraneous-dependencies */
-import { Command } from "@commander-js/extra-typings";
 import chalk from "chalk";
+import * as Commander from "commander";
 import path from "path";
 import prompts from "prompts";
 import checkForUpdate from "update-check";
-import { createApp, DownloadError } from "./create-app";
-import { getPkgManager } from "./helpers/get-pkg-manager";
-import { validateNpmName } from "./helpers/validate-pkg";
-import packageJson from "./package.json";
+import { createApp, DownloadError } from "./create-app.js";
+import { getPkgManager } from "./helpers/get-pkg-manager.js";
+import { validateNpmName } from "./helpers/validate-pkg.js";
+import packageJson from "./package.json" assert { type: "json" };
 
 let projectPath: string = "";
 
-const program = new Command(packageJson.name)
+const program = new Commander.Command(packageJson.name)
   .version(packageJson.version)
   .arguments("<project-directory>")
   .usage(`${chalk.green("<project-directory>")} [options]`)

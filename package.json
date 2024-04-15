@@ -1,6 +1,7 @@
 {
   "name": "create-trpc-appx",
-  "version": "0.0.2-alpha",
+  "version": "0.0.2-alpha-12",
+  "type": "module",
   "keywords": [
     "trpc",
     "create-trpc-app"
@@ -31,10 +32,10 @@
     "tar": "7.0.1",
     "typescript": "5.4.5",
     "update-check": "1.5.4",
-    "validate-npm-package-name": "5.0.0"
+    "validate-npm-package-name": "5.0.0",
+    "@commander-js/extra-typings": "^12.0.1"
   },
   "devDependencies": {
-    "@commander-js/extra-typings": "^12.0.1",
     "@types/async-retry": "1.4.8",
     "@types/cross-spawn": "^6.0.6",
     "@types/got": "^9.6.12",
