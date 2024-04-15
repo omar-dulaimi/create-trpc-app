@@ -113,7 +113,7 @@ pnpm create trpc-appx blog-app
 
 ## Why use Create tRPC App?
 
-`create-trpc-appx` allows you to create a new tRPC app within seconds. It is officially maintained by the creators of tRPC, and includes a number of benefits:
+`create-trpc-appx` allows you to create a new tRPC app within seconds. It includes a number of benefits:
 
 - **Interactive Experience**: Running `npx create-trpc-appx` (with no arguments) launches an interactive experience that guides you through setting up a project.
 - **Offline Support**: Create tRPC App will automatically detect if you're offline and bootstrap your project using your local package cache.
