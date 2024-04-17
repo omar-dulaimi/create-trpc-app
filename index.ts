@@ -2,13 +2,18 @@
 /* eslint-disable import/no-extraneous-dependencies */
 import chalk from "chalk";
 import * as Commander from "commander";
+import fs from "fs";
 import path from "path";
 import prompts from "prompts";
 import checkForUpdate from "update-check";
+import { fileURLToPath } from "url";
 import { createApp, DownloadError } from "./create-app.js";
 import { getPkgManager } from "./helpers/get-pkg-manager.js";
 import { validateNpmName } from "./helpers/validate-pkg.js";
-import packageJson from "./package.json" assert { type: "json" };
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+
+const packageJsonPath = path.resolve(__dirname, "../package.json");
+const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, "utf8"));
 
 let projectPath: string = "";
 
@@ -24,7 +29,8 @@ const program = new Commander.Command(packageJson.name)
     `
 
   Explicitly tell the CLI to bootstrap the app using npm
-`
+`,
+    true
   )
   .option(
     "--use-pnpm",

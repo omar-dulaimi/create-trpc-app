@@ -181,6 +181,29 @@ export async function createApp({
     await install(root, null, { packageManager, isOnline });
     console.log();
   } else {
+    const templatePath = path.join(__dirname, "templates", template);
+    /**
+     * Copy the template files to the target directory.
+     */
+    await cpy("**", root, {
+      cwd: templatePath,
+      parents: true,
+      rename: (name: string) => {
+        switch (name) {
+          case "gitignore":
+          case "eslintrc.json": {
+            return ".".concat(name);
+          }
+          case "README-template.md": {
+            return "README.md";
+          }
+          default: {
+            return name;
+          }
+        }
+      },
+    });
+
     /**
      * Otherwise, if an example repository is not provided for cloning, proceed
      * by installing from a template.
@@ -194,29 +217,31 @@ export async function createApp({
      * Default dependencies.
      */
     const dependencies = [
-      "@trpc/client",
-      "@trpc/server",
-      "abort-controller",
-      "express",
-      "node-fetch",
-      "zod",
+      "@trpc/client@^10.45.2",
+      "@trpc/react-query@^10.45.2",
+      "@trpc/server@^10.45.2",
+      "express@^4.17.1",
+      "zod@^3.0.0",
     ];
     /**
      * Default devDependencies.
      */
     const devDependencies = [
-      "@types/express",
-      "@types/node-fetch",
-      "nodemon",
-      "npm-run-all",
-      "start-server-and-test",
-      "ts-node",
-      "wait-on",
+      "@types/express@^4.17.17",
+      "@types/node@^20.10.0",
+      "@types/react@^18.2.33",
+      "esbuild@^0.17.10",
+      "eslint@^8.40.0",
+      "npm-run-all@^4.1.5",
+      "start-server-and-test@^1.12.0",
+      "tsx@^4.0.0",
+      "typescript@^5.4.0",
+      "wait-port@^1.0.1",
     ];
     /**
      * TypeScript projects will have type definitions and other devDependencies.
      */
-    devDependencies.push("typescript", "@types/node");
+    // devDependencies.push("typescript", "@types/node");
     /**
      * Install package.json dependencies if they exist.
      */
@@ -245,26 +270,6 @@ export async function createApp({
       await install(root, devDependencies, devInstallFlags);
     }
     console.log();
-    /**
-     * Copy the template files to the target directory.
-     */
-    await cpy("**", root, {
-      cwd: path.join(__dirname, "templates", template),
-      rename: (name) => {
-        switch (name) {
-          case "gitignore":
-          case "eslintrc.json": {
-            return ".".concat(name);
-          }
-          case "README-template.md": {
-            return "README.md";
-          }
-          default: {
-            return name;
-          }
-        }
-      },
-    });
   }
 
   if (tryGitInit(root)) {
