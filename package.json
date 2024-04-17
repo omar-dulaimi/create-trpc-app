@@ -1,6 +1,6 @@
 {
   "name": "create-trpc-appx",
-  "version": "0.0.2-alpha-31",
+  "version": "0.0.2",
   "type": "module",
   "keywords": [
     "trpc",
