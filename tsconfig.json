@@ -1,14 +1,14 @@
 {
   "compilerOptions": {
-    "module": "commonjs",
-    "target": "es6",
+    "module": "ESNext",
+    "target": "ES2022",
     "moduleResolution": "node",
     "baseUrl": ".",
     "strict": true,
     "resolveJsonModule": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
-    "outDir": "dist",
+    "outDir": "dist"
   },
   "exclude": ["templates", "dist", "package"]
 }

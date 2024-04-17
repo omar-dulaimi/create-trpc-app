@@ -77,21 +77,11 @@ Some examples use yarn, so you may need to install it after creating a new proje
 To get started, use the following command:
 
 ```bash
-npx create-trpc-appx@latest
+npx create-trpc-appx@latest <FOLDER NAME>
 # or
-yarn create trpc-appx
+yarn create trpc-appx <FOLDER NAME>
 # or
-pnpm create trpc-appx
-```
-
-To create a new app in a specific folder, you can send a name as an argument. For example, the following command will create a new tRPC app called `blog-app` in a folder with the same name:
-
-```bash
-npx create-trpc-appx@latest blog-app
-# or
-yarn create trpc-appx blog-app
-# or
-pnpm create trpc-appx blog-app
+pnpm create trpc-appx <FOLDER NAME>
 ```
 
 <p align="right">(<a href="#top">back to top</a>)</p>
@@ -113,7 +103,7 @@ pnpm create trpc-appx blog-app
 
 ## Why use Create tRPC App?
 
-`create-trpc-appx` allows you to create a new tRPC app within seconds. It is officially maintained by the creators of tRPC, and includes a number of benefits:
+`create-trpc-appx` allows you to create a new tRPC app within seconds. It includes a number of benefits:
 
 - **Interactive Experience**: Running `npx create-trpc-appx` (with no arguments) launches an interactive experience that guides you through setting up a project.
 - **Offline Support**: Create tRPC App will automatically detect if you're offline and bootstrap your project using your local package cache.
