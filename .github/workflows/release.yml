@@ -4,6 +4,11 @@ on:
   push:
     branches: [master]
 
+permissions:
+  contents: write   # needed to push tags and create releases
+  issues: write     # needed for @semantic-release/github to open fail issues
+  pull-requests: write
+
 jobs:
   release:
     runs-on: ubuntu-latest
