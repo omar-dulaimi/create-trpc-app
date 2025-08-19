@@ -1,6 +1,6 @@
-import { EventEmitter } from "events"
 import { initTRPC, TRPCError } from "@trpc/server"
 import * as trpcExpress from "@trpc/server/adapters/express"
+import { EventEmitter } from "events"
 import express from "express"
 import { z } from "zod"
 
@@ -80,7 +80,7 @@ const appRouter = router({
   post: postRouter,
   message: messageRouter,
   // or individual procedures
-  hello: publicProcedure.input(z.string().nullish()).query(({ input, ctx }) => {
+  hello: publicProcedure.input(z.string().optional()).query(({ input, ctx }) => {
     return `hello ${input ?? ctx.user?.name ?? "world"}`
   }),
   // or inline a router
