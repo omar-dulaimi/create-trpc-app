@@ -10,10 +10,7 @@
     "ecmaVersion": 2022
   },
   "plugins": ["@typescript-eslint", "import"],
-  "extends": [
-    "eslint:recommended",
-    "plugin:@typescript-eslint/recommended"
-  ],
+  "extends": ["eslint:recommended", "plugin:@typescript-eslint/recommended"],
   "ignorePatterns": ["dist/**", "templates/**", "package/**"],
   "rules": {
     "no-console": "off",

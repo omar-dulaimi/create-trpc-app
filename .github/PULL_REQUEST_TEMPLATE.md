@@ -5,8 +5,6 @@ Please see the [contributing guidelines](https://github.com/omar-dulaimi/create-
 > Describe the purpose of this PR along with any background information and the impacts of the proposed change. For the benefit of the community, please do not assume prior context.
 >
 > Provide details that support your chosen implementation, including: breaking changes, alternatives considered, changes to the API, etc.
->
-
 
 ### References
 

@@ -1,5 +1,5 @@
 // eslint-disable-next-line import/no-extraneous-dependencies
-import validateProjectName from 'validate-npm-package-name'
+import validateProjectName from "validate-npm-package-name"
 
 export function validateNpmName(name: string): {
   valid: boolean
@@ -12,9 +12,6 @@ export function validateNpmName(name: string): {
 
   return {
     valid: false,
-    problems: [
-      ...(nameValidation.errors || []),
-      ...(nameValidation.warnings || []),
-    ],
+    problems: [...(nameValidation.errors || []), ...(nameValidation.warnings || [])],
   }
 }

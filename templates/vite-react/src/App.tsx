@@ -1,16 +1,16 @@
-import { useState } from 'react';
-import { trpc } from './trpc';
+import { useState } from "react"
+import { trpc } from "./trpc"
 
 export function App() {
-  const [message, setMessage] = useState('');
-  const hello = trpc.hello.useQuery();
+  const [message, setMessage] = useState("")
+  const hello = trpc.hello.useQuery()
 
   return (
     <div>
       <h1>tRPC Vite + React Example</h1>
-      <p>Server says: {hello.data ?? '...'}</p>
-      <input value={message} onChange={e => setMessage(e.target.value)} />
+      <p>Server says: {hello.data ?? "..."}</p>
+      <input value={message} onChange={(e) => setMessage(e.target.value)} />
       <button onClick={() => trpc.hello.mutate(message)}>Send</button>
     </div>
-  );
+  )
 }

@@ -52,13 +52,13 @@ If this project helps you, please:
 
 ## Features
 
-|  ⚡ | What               | Details                                                      |
-| --: | :----------------- | :----------------------------------------------------------- |
-|  🚀 | Fast builds        | ESM output via tsup                                          |
-|  🧠 | Smart scripts      | Framework heuristics: dev → start/preview → build            |
-|  🧭 | Workspace‑aware    | Detects npm/yarn/pnpm workspaces and picks the right package |
-|  🛰️ | Robust runner      | Cache, offline mode, retries, checksum verification          |
-|  🔌 | Env/Ports          | Inline env, env-file, fixed/auto ports                       |
+|  ⚡ | What            | Details                                                      |
+| --: | :-------------- | :----------------------------------------------------------- |
+|  🚀 | Fast builds     | ESM output via tsup                                          |
+|  🧠 | Smart scripts   | Framework heuristics: dev → start/preview → build            |
+|  🧭 | Workspace‑aware | Detects npm/yarn/pnpm workspaces and picks the right package |
+|  🛰️ | Robust runner   | Cache, offline mode, retries, checksum verification          |
+|  🔌 | Env/Ports       | Inline env, env-file, fixed/auto ports                       |
 
 ## Commands
 
@@ -73,13 +73,13 @@ If this project helps you, please:
 
 ### Scaffold options
 
-| Option                              | Type   | Default | Description                                                       |
-| :---------------------------------- | :----- | :------ | :---------------------------------------------------------------- |
-| `-e, --example [name\|github-url]`  | string | —       | Use a bundled template or a GitHub URL                            |
-| `--example-path <path>`             | string | —       | Required when branch contains a slash or to target a subdirectory |
-| `--use-npm` / `--use-pnpm`          | flag   | auto    | Prefer a package manager                                          |
-| `--yes`                             | flag   | false   | Skip prompts                                                      |
-| `--verbose`                         | flag   | false   | Extra logs                                                        |
+| Option                             | Type   | Default | Description                                                       |
+| :--------------------------------- | :----- | :------ | :---------------------------------------------------------------- |
+| `-e, --example [name\|github-url]` | string | —       | Use a bundled template or a GitHub URL                            |
+| `--example-path <path>`            | string | —       | Required when branch contains a slash or to target a subdirectory |
+| `--use-npm` / `--use-pnpm`         | flag   | auto    | Prefer a package manager                                          |
+| `--yes`                            | flag   | false   | Skip prompts                                                      |
+| `--verbose`                        | flag   | false   | Extra logs                                                        |
 
 ### Run options (by feature)
 
@@ -167,7 +167,6 @@ The runner detects common frameworks (Next.js, Vite, Remix, Astro, SvelteKit, So
 1. If current dir has a runnable script → use it.
 
 2. If workspace root → expand workspace globs and pick the best candidate based on:
-
    - script presence: `dev` > `preview` > `start` > `build`
    - directory hints: `examples`, `app`, `web`, `site`, `server`, `api`
 
