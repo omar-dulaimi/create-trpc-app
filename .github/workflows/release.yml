@@ -26,4 +26,8 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-        run: npx semantic-release
+          HUSKY: 0
+        run: |
+          # Ensure generated files (e.g., CHANGELOG.md) won’t fail formatting hooks
+          npx prettier --write . || true
+          npx semantic-release
