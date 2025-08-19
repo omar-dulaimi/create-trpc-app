@@ -10,11 +10,17 @@ export default [
   {
     ignores: ['dist/**', 'templates/**', 'package/**']
   },
+  // Linter options
+  {
+    linterOptions: {
+      reportUnusedDisableDirectives: 'off'
+    }
+  },
   // Base JS recommended rules
   js.configs.recommended,
   // TS/JS project rules
   {
-    files: ['**/*.{ts,tsx,js}'],
+    files: ['**/*.{ts,tsx,js,mjs,cjs}'],
     languageOptions: {
       parser: tsParser,
       ecmaVersion: 2022,
@@ -31,6 +37,7 @@ export default [
     rules: {
       // Keep linting lightweight for this CLI repo
       'no-console': 'off',
+      'no-unused-vars': 'off',
       'no-undef': 'off',
       'no-empty': 'off',
       'no-useless-escape': 'off',
