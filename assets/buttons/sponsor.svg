@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="240" height="56" viewBox="0 0 240 56" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <title>Sponsor on GitHub</title>
+  <rect x="0.5" y="0.5" width="239" height="55" rx="12" fill="#EA4AAA"/>
+  <rect x="0.5" y="0.5" width="239" height="55" rx="12" stroke="rgba(0,0,0,0.06)"/>
+  <!-- Heart icon -->
+  <path d="M36 20c-3.314 0-6 2.686-6 6 0 6.627 9 11 9 11s9-4.373 9-11c0-3.314-2.686-6-6-6-1.99 0-3.752 1.004-4.8 2.53C39.752 21.004 37.99 20 36 20z" fill="#fff"/>
+  <text x="120" y="28" text-anchor="middle" dominant-baseline="middle" fill="#ffffff" font-family="-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Helvetica,Arial,sans-serif" font-weight="700" font-size="16">Sponsor on GitHub</text>
+</svg>

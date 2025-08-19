@@ -35,19 +35,30 @@ Tip: add `--yes` to skip prompts. Use `--verbose` for debug logs.
 
 ## Support the project
 
-If this project helps you, please:
+If this project helps you, please consider:
 
-- Star the repo to show support
-- Consider sponsoring to help me maintain and improve it
+- Starring the repo
+- Sponsoring on GitHub to support maintenance
 
-<p>
+<p align="center">
   <a href="https://github.com/omar-dulaimi/create-trpc-app/stargazers">
-    <img src="https://img.shields.io/github/stars/omar-dulaimi/create-trpc-app?style=social" alt="GitHub stars" />
+    <img src="./assets/buttons/star.svg" alt="Star this project on GitHub" width="220" height="56" />
   </a>
-  &nbsp;
-  <a href="https://www.buymeacoffee.com/omardulaimi">
-    <img src="https://img.shields.io/badge/Sponsor-Buy%20Me%20A%20Coffee-ffdd00?logo=buymeacoffee&logoColor=000&labelColor=grey" alt="Sponsor" />
+  &nbsp;&nbsp;
+  <a href="https://github.com/sponsors/omar-dulaimi">
+    <img src="./assets/buttons/sponsor.svg" alt="Sponsor on GitHub" width="240" height="56" />
   </a>
+  
+  <br/>
+  <sub>Thanks for your support — it helps keep this project healthy and moving forward.</sub>
+  
+  <!-- If the above images don't render on npm, GitHub will still display them. -->
+  <!-- Fallback text links: -->
+  <br/>
+  <a href="https://github.com/omar-dulaimi/create-trpc-app/stargazers">Star on GitHub</a>
+  ·
+  <a href="https://github.com/sponsors/omar-dulaimi">Sponsor via GitHub Sponsors</a>
+  
 </p>
 
 ## Features
@@ -223,7 +234,6 @@ Licensed under MIT.
 [contributors-url]: https://github.com/omar-dulaimi/create-trpc-app/graphs/contributors
 [forks-shield]: https://img.shields.io/github/forks/omar-dulaimi/create-trpc-app.svg?style=for-the-badge
 [forks-url]: https://github.com/omar-dulaimi/create-trpc-app/network/members
-[stars-shield]: https://img.shields.io/github/stars/omar-dulaimi/create-trpc-app.svg?style=for-the-badge
 [stars-url]: https://github.com/omar-dulaimi/create-trpc-app/stargazers
 [issues-shield]: https://img.shields.io/github/issues/omar-dulaimi/create-trpc-app.svg?style=for-the-badge
 [issues-url]: https://github.com/omar-dulaimi/create-trpc-app/issues
