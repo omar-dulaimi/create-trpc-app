@@ -21,8 +21,10 @@
 ## Quick start
 
 ```bash
-# Interactive scaffold
+# Interactive scaffold (pass a name or answer the prompt)
 npx create-trpc-appx@latest my-app
+# or just:
+npx create-trpc-appx@latest
 
 # Scaffold from a bundled template
 npx create-trpc-appx@latest my-app --example nextjs-app
@@ -196,6 +198,12 @@ The runner detects common frameworks (Next.js, Vite, Remix, Astro, SvelteKit, So
 - behind a proxy → set `HTTP_PROXY`/`HTTPS_PROXY`
 - private repos or higher rate limits → set `GITHUB_TOKEN`
 - no runnable scripts found → check `package.json` scripts or pass `--script`
+
+If you see `error: unknown command 'my-app'` when running `npx create-trpc-appx my-app`, you're likely on an older CLI that didn't accept a positional project name at the root. Update to the latest version or run without the name and answer the prompt:
+
+```bash
+npx create-trpc-appx@latest
+```
 
 Run diagnostics:
 

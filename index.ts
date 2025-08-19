@@ -44,7 +44,8 @@ let longRunningSubcommand = false
 
 const program = new Commander.Command(packageJson.name)
   .version(packageJson.version)
-  .arguments("<project-directory>")
+  // Accept a project directory as an operand for the root command (optional to allow interactive prompt)
+  .argument("[project-directory]")
   .usage(`${chalk.green("<project-directory>")} [options]`)
   .option("--yes", "Skip prompts and use sensible defaults (non-interactive mode)")
   .option("--verbose", "Enable verbose logging for troubleshooting")
@@ -183,6 +184,14 @@ const program = new Commander.Command(packageJson.name)
 `
   )
   .allowUnknownOption()
+
+// Root action: triggered when no subcommand is invoked. Captures the optional
+// project directory operand so running `create-trpc-appx my-app` works.
+program.action((dir: string | undefined) => {
+  if (typeof dir === "string") {
+    projectPath = dir
+  }
+})
 
 async function run(): Promise<void> {
   if (typeof projectPath === "string") {
