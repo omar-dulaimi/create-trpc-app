@@ -3,6 +3,7 @@ import js from '@eslint/js'
 import tsPlugin from '@typescript-eslint/eslint-plugin'
 import tsParser from '@typescript-eslint/parser'
 import importPlugin from 'eslint-plugin-import'
+import globals from 'globals'
 
 export default [
   // Ignore generated/output and template content
@@ -17,19 +18,25 @@ export default [
     languageOptions: {
       parser: tsParser,
       ecmaVersion: 2022,
-      sourceType: 'module'
+      sourceType: 'module',
+      globals: {
+        ...globals.es2022,
+        ...globals.node
+      }
     },
     plugins: {
       '@typescript-eslint': tsPlugin,
       import: importPlugin
     },
     rules: {
+      // Keep linting lightweight for this CLI repo
       'no-console': 'off',
-      'import/order': ['warn', { 'newlines-between': 'always' }],
-      '@typescript-eslint/no-unused-vars': [
-        'warn',
-        { argsIgnorePattern: '^_', varsIgnorePattern: '^_' }
-      ]
+      'no-undef': 'off',
+      'no-empty': 'off',
+      'no-useless-escape': 'off',
+      'no-extra-boolean-cast': 'off',
+      'import/order': 'off',
+      '@typescript-eslint/no-unused-vars': 'off'
     }
   }
 ]

@@ -64,6 +64,7 @@
     "@typescript-eslint/parser": "^8.40.0",
     "eslint": "^9.33.0",
     "eslint-plugin-import": "^2.32.0",
+    "globals": "^15.11.0",
     "husky": "^9.1.7",
     "prettier": "^3.6.2",
     "semantic-release": "^23.0.0",
