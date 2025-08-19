@@ -9,8 +9,11 @@ export function App() {
     <div>
       <h1>tRPC Vite + React Example</h1>
       <p>Server says: {hello.data ?? "..."}</p>
-  <input value={message} onChange={(e: ChangeEvent<HTMLInputElement>) => setMessage(e.target.value)} />
-  <button onClick={() => trpc.hello.mutate(message)}>Send</button>
+      <input
+        value={message}
+        onChange={(e: ChangeEvent<HTMLInputElement>) => setMessage(e.target.value)}
+      />
+      <button onClick={() => trpc.hello.mutate(message)}>Send</button>
     </div>
   )
 }

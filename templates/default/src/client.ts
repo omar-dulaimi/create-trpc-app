@@ -17,8 +17,8 @@ async function main() {
   // parallel queries
   await Promise.all([
     //
-  trpc.hello.query(undefined),
-  trpc.hello.query("client"),
+    trpc.hello.query(undefined),
+    trpc.hello.query("client"),
   ])
 
   const postCreate = await trpc.post.createPost.mutate({
