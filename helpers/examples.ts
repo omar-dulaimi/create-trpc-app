@@ -1,3 +1,33 @@
+import { execSync } from "child_process";
+// Download repo with fallback: zipball, tarball, git clone
+export async function downloadRepoWithFallback(root: string, info: RepoInfo): Promise<void> {
+  // Try zipball via GitHub API
+  try {
+    const unzipper = await import('unzipper');
+    const zipStream = got.stream(`https://api.github.com/repos/${info.username}/${info.name}/zipball/${info.branch}`);
+    await new Promise((resolve, reject) => {
+      zipStream
+        .pipe(unzipper.Extract({ path: root }))
+        .on('close', resolve)
+        .on('error', reject);
+    });
+    return;
+  } catch (e) {
+    // Try public tarball
+    try {
+      await downloadAndExtractRepo(root, info);
+      return;
+    } catch (e2) {
+      // Fallback to git clone
+      try {
+        execSync(`git clone --depth=1 --branch ${info.branch} https://github.com/${info.username}/${info.name}.git ${root}`);
+        return;
+      } catch (e3) {
+        throw new Error("All download strategies failed: zipball, tarball, git clone.");
+      }
+    }
+  }
+}
 /* eslint-disable import/no-extraneous-dependencies */
 import got from "got";
 import { pipeline } from "stream/promises";

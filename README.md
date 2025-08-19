@@ -1,113 +1,207 @@
-<div id="top"></div>
-
-[![Contributors][contributors-shield]][contributors-url]
-[![Forks][forks-shield]][forks-url]
-[![Stargazers][stars-shield]][stars-url]
-[![Issues][issues-shield]][issues-url]
-[![MIT License][license-shield]][license-url]
-
-
-<!-- PROJECT LOGO -->
-<br />
 <div align="center">
   <a href="https://github.com/omar-dulaimi/create-trpc-app">
-    <img src="https://raw.githubusercontent.com/omar-dulaimi/create-trpc-app/master/logo.png" alt="Logo" width="150" height="150">
+    <img src="https://raw.githubusercontent.com/omar-dulaimi/create-trpc-app/master/logo.png" alt="Logo" width="120" height="120" />
   </a>
 
-  <h3 align="center">Create tRPC App</h3>
+  <h1>Create tRPC App</h1>
+  <p>Scaffold a new tRPC app or run any public tRPC example from GitHub — fast, reliable, workspace‑aware.</p>
 
-  <p align="center">
-    The easiest way to get started with tRPC!
-    <br />
-    <a href="#options"><strong>Explore the docs »</strong></a>
-    <br />
-    <br />
-    <a href="https://github.com/omar-dulaimi/create-trpc-app/issues/new?template=bug_report.yml">Report Bug</a>
-    ·
-    <a href="https://github.com/omar-dulaimi/create-trpc-app/issues/new?template=feature_request.md">Request Feature</a>
+  <p>
+    <a href="#quick-start">🚀 Quick start</a> ·
+    <a href="#features">✨ Features</a> ·
+    <a href="#commands">🧰 Commands</a> ·
+    <a href="#options">⚙️ Options</a> ·
+    <a href="#templates">📦 Templates</a> ·
+    <a href="#monorepos--script-detection">🧭 Monorepos</a> ·
+  <a href="#troubleshooting">🩺 Troubleshooting</a> ·
+  <a href="#support-the-project">🌟 Star & Sponsor</a>
   </p>
 </div>
 
-<p align="center">
+## Quick start
+
+```bash
+# Interactive scaffold
+npx create-trpc-appx@latest my-app
+
+# Scaffold from a bundled template
+npx create-trpc-appx@latest my-app --example nextjs-app
+
+# Run an example from GitHub (no scaffold)
+create-trpc-appx run trpc/trpc-openapi#master --example-path examples/with-nextjs --prepare-only
+```
+
+Tip: add `--yes` to skip prompts. Use `--verbose` for debug logs.
+
+## Support the project
+
+If this project helps you, please:
+
+- Star the repo to show support
+- Consider sponsoring to help me maintain and improve it
+
+<p>
+  <a href="https://github.com/omar-dulaimi/create-trpc-app/stargazers">
+    <img src="https://img.shields.io/github/stars/omar-dulaimi/create-trpc-app?style=social" alt="GitHub stars" />
+  </a>
+  &nbsp;
   <a href="https://www.buymeacoffee.com/omardulaimi">
-    <img src="https://cdn.buymeacoffee.com/buttons/default-black.png" alt="Buy Me A Coffee" height="41" width="174">
+    <img src="https://img.shields.io/badge/Sponsor-Buy%20Me%20A%20Coffee-ffdd00?logo=buymeacoffee&logoColor=000&labelColor=grey" alt="Sponsor" />
   </a>
 </p>
 
-<!-- TABLE OF CONTENTS -->
-<details>
-  <summary>Table of Contents</summary>
-  <ol>
-    <li>
-      <a href="#about-the-project">About The Project</a>
-    </li>
-    <li>
-      <a href="#getting-started">Getting Started</a>
-      <ul>
-        <li><a href="#prerequisites">Prerequisites</a></li>
-      </ul>
-    </li>
-    <li><a href="#usage">Usage</a></li>
-    <li><a href="#options">Options</a></li>
-    <li>
-      <a href="#why-use-create-trpc-app">Why use Create tRPC App?</a>
-    </li>
-    <li><a href="#acknowledgments">Acknowledgments</a></li>
-  </ol>
-</details>
+## Features
 
-<!-- ABOUT THE PROJECT -->
+|  ⚡ | What               | Details                                                      |
+| --: | :----------------- | :----------------------------------------------------------- |
+|  🚀 | Fast builds        | ESM output via tsup                                          |
+|  🧠 | Smart scripts      | Framework heuristics: dev → start/preview → build            |
+|  🧭 | Workspace‑aware    | Detects npm/yarn/pnpm workspaces and picks the right package |
+|  🛰️ | Robust runner      | Cache, offline mode, retries, checksum verification          |
+|  🔌 | Env/Ports          | Inline env, env-file, fixed/auto ports                       |
 
-## About The Project
+## Commands
 
-The easiest way to get started with tRPC is by using `create-trpc-appx`. This CLI tool enables you to quickly start building a new tRPC application, with everything set up for you. You can create a new app using the default tRPC template, or by using one of the [official tRPC examples](https://github.com/trpc/trpc/tree/main/examples).
-
-<!-- GETTING STARTED -->
-
-## Getting Started
-
-### Prerequisites
-
-Some examples use yarn, so you may need to install it after creating a new project.
-
-<!-- USAGE EXAMPLES -->
-
-## Usage
-
-To get started, use the following command:
-
-```bash
-npx create-trpc-appx@latest <FOLDER NAME>
-# or
-yarn create trpc-appx <FOLDER NAME>
-# or
-pnpm create trpc-appx <FOLDER NAME>
-```
-
-<p align="right">(<a href="#top">back to top</a>)</p>
-
-<!-- OPTIONS -->
+| Command                             | Purpose                                                  |
+| :---------------------------------- | :------------------------------------------------------- |
+| `create-trpc-appx`                  | Interactive scaffold for a new app                       |
+| `create-trpc-appx doctor`           | Diagnose Node, package managers, git, proxy, and network |
+| `create-trpc-appx info [dir]`       | Show scripts, workspaces, engines for a project          |
+| `create-trpc-appx run <github-url>` | Fetch, prepare, and run a public example from GitHub     |
 
 ## Options
 
-`create-trpc-appx` comes with the following options:
+### Scaffold options
 
-- **-e, --example [name]|[github-url]** - An example to bootstrap the app with. You can use an example name from the [tRPC repo](https://github.com/trpc/trpc/tree/main/examples) or a GitHub URL. The URL can use any branch and/or subdirectory.
-- **--example-path &lt;path-to-example&gt;** - In a rare case, your GitHub URL might contain a branch name with a slash (e.g. bug/fix-1) and the path to the example (e.g. foo/bar). In this case, you must specify the path to the example separately: `--example-path foo/bar`
-- **--use-npm** - Explicitly tell the CLI to bootstrap the app using npm. To bootstrap using yarn we recommend to run `yarn create trpc-appx <FOLDER NAME>`
-- **--use-pnpm** - Explicitly tell the CLI to bootstrap the app using pnpm. To bootstrap using pnpm we recommend running `pnpm create trpc-appx <FOLDER NAME>`
+| Option                              | Type   | Default | Description                                                       |
+| :---------------------------------- | :----- | :------ | :---------------------------------------------------------------- |
+| `-e, --example [name\|github-url]`  | string | —       | Use a bundled template or a GitHub URL                            |
+| `--example-path <path>`             | string | —       | Required when branch contains a slash or to target a subdirectory |
+| `--use-npm` / `--use-pnpm`          | flag   | auto    | Prefer a package manager                                          |
+| `--yes`                             | flag   | false   | Skip prompts                                                      |
+| `--verbose`                         | flag   | false   | Extra logs                                                        |
 
-<p align="right">(<a href="#top">back to top</a>)</p>
+### Run options (by feature)
 
-<!-- WHY USE CREATE TRPC APP -->
+<details>
+  <summary><b>Environment & Ports</b></summary>
 
-## Why use Create tRPC App?
+| Option              | Type       | Default   | Description                                   |
+| :------------------ | :--------- | :-------- | :-------------------------------------------- |
+| `--env KEY=VALUE`   | repeatable | —         | Inline env vars to pass                       |
+| `--env-file <path>` | string     | —         | Load env vars from file                       |
+| `--port <number>`   | number     | —         | Set PORT                                      |
+| `--auto-port`       | flag       | false     | Find a free port starting at `--port` or 3000 |
+| `--script <name>`   | string     | heuristic | Force a specific script                       |
 
-`create-trpc-appx` allows you to create a new tRPC app within seconds. It includes a number of benefits:
+</details>
 
-- **Interactive Experience**: Running `npx create-trpc-appx` (with no arguments) launches an interactive experience that guides you through setting up a project.
-- **Offline Support**: Create tRPC App will automatically detect if you're offline and bootstrap your project using your local package cache.
-- **Support for Examples**: Create tRPC App can bootstrap your application using an example from the tRPC examples collection (e.g. `npx create-trpc-appx --example fastify-server`).
+<details>
+  <summary><b>Networking & Cache</b></summary>
+
+| Option               | Type   | Default   | Description                                               |
+| :------------------- | :----- | :-------- | :-------------------------------------------------------- |
+| `--offline`          | flag   | false     | Use cache only (no network)                               |
+| `--no-cache`         | flag   | false     | Disable cache and force re‑download                       |
+| `--cache-dir <path>` | string | XDG cache | Use a custom cache dir                                    |
+| `--prepare-only`     | flag   | false     | Download/extract (and optionally install) without running |
+| `--no-install`       | flag   | false     | Skip dependency installation                              |
+
+</details>
+
+<details>
+  <summary><b>Build & Scripts</b></summary>
+
+| Option              | Type                      | Default | Description                              |
+| :------------------ | :------------------------ | :------ | :--------------------------------------- |
+| `--prebuild <mode>` | `auto`\|`always`\|`never` | `auto`  | Prebuild before `start` when appropriate |
+
+Heuristics: Next.js/Remix/SolidStart → `dev` → `start` → `build`; Vite/Astro/SvelteKit → `dev` → `preview` → `start`.
+
+</details>
+
+<!-- Telemetry removed in 2025-08 -->
+
+<details>
+  <summary><b>Package manager</b></summary>
+
+You can pass `--use-npm` or `--use-pnpm` with `run` as well. The runner otherwise detects npm/yarn/pnpm via lockfiles and `packageManager` fields and installs at the appropriate workspace root when needed.
+
+</details>
+
+## Templates
+
+| Name         | Stack                              |
+| :----------- | :--------------------------------- |
+| `default`    | Node + tRPC server + simple client |
+| `nextjs-app` | Next.js App Router + tRPC          |
+| `vite-react` | Vite + React + tRPC                |
+
+Use during scaffold with `--example <name>` or point to any GitHub example URL.
+
+## Run examples from GitHub
+
+```bash
+# Full URL with subdirectory
+create-trpc-appx run https://github.com/trpc/trpc-openapi/tree/master/examples/with-nextjs --prepare-only
+
+# Short/SSH forms and explicit example-path
+create-trpc-appx run trpc/trpc-openapi#master --example-path examples/with-nextjs
+```
+
+The runner caches archives, verifies checksums, retries transient failures, and falls back to `git clone` when necessary. The cache can be safely removed at any time.
+
+## Monorepos & script detection
+
+The runner scans workspaces (npm/yarn/pnpm) and common subfolders (apps/_, packages/_) to pick the best runnable directory based on scripts and naming.
+
+The runner detects common frameworks (Next.js, Vite, Remix, Astro, SvelteKit, SolidStart) and picks the best script automatically:
+
+- Next.js, Remix, SolidStart: prefers `dev`, then `start`, then `build`.
+- Vite, Astro, SvelteKit: prefers `dev`, then `preview`, then `start`.
+- Prebuild is triggered for `preview`/`start` if a `build` script exists (Vite/Astro/SvelteKit), or for `start` when `build` exists (Next.js/Remix/SolidStart).
+
+<details>
+  <summary>Heuristics</summary>
+
+1. If current dir has a runnable script → use it.
+
+2. If workspace root → expand workspace globs and pick the best candidate based on:
+
+   - script presence: `dev` > `preview` > `start` > `build`
+   - directory hints: `examples`, `app`, `web`, `site`, `server`, `api`
+
+3. Otherwise, scan first two levels for runnable packages.
+
+</details>
+
+<!-- Telemetry section removed in 2025-08 -->
+
+## Troubleshooting
+
+<details>
+  <summary>Common issues</summary>
+
+- engines.node mismatch → use nvm/Volta to switch versions
+- behind a proxy → set `HTTP_PROXY`/`HTTPS_PROXY`
+- private repos or higher rate limits → set `GITHUB_TOKEN`
+- no runnable scripts found → check `package.json` scripts or pass `--script`
+
+Run diagnostics:
+
+```bash
+create-trpc-appx doctor
+```
+
+</details>
+
+## Security
+
+This CLI can download and run third‑party code. Review sources before running unfamiliar examples. Prefer a sandboxed/test environment when exploring.
+
+## Contributing
+
+Contributions welcome—PRs and issues appreciated.
 
 <!-- ACKNOWLEDGMENTS -->
 
@@ -116,6 +210,10 @@ pnpm create trpc-appx <FOLDER NAME>
 This project has been based on Create Next App, so a huge thank you goes to every and single one who worked on it.
 
 Attribution for one of the icons used in the logo: <a href="https://www.flaticon.com/free-icons/design" title="design icons">Design icons created by monkik - Flaticon</a>
+
+## License
+
+Licensed under MIT.
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
@@ -132,4 +230,3 @@ Attribution for one of the icons used in the logo: <a href="https://www.flaticon
 [issues-url]: https://github.com/omar-dulaimi/create-trpc-app/issues
 [license-shield]: https://img.shields.io/github/license/omar-dulaimi/create-trpc-app?style=for-the-badge
 [license-url]: https://github.com/omar-dulaimi/create-trpc-app/blob/master/LICENSE
-

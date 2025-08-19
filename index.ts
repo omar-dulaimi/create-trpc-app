@@ -3,27 +3,158 @@
 import chalk from "chalk";
 import * as Commander from "commander";
 import fs from "fs";
+import os from "os";
 import path from "path";
 import prompts from "prompts";
 import checkForUpdate from "update-check";
 import { fileURLToPath } from "url";
 import { createApp, DownloadError } from "./create-app.js";
+import { runDoctor } from "./helpers/doctor.js";
 import { getPkgManager } from "./helpers/get-pkg-manager.js";
+import { runInfo } from "./helpers/info.js";
+import { runExample } from "./helpers/run.js";
 import { validateNpmName } from "./helpers/validate-pkg.js";
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
-const packageJsonPath = path.resolve(__dirname, "../package.json");
+
+
+
+function readUserConfig(): any {
+  try {
+    const configPath = path.join(os.homedir(), ".config", "create-trpc-app", "config.json");
+    if (fs.existsSync(configPath)) {
+      return JSON.parse(fs.readFileSync(configPath, "utf8"));
+    }
+  } catch {}
+  return {};
+}
+
+
+
+function getDefaultCacheDir() {
+  const base = process.env.XDG_CACHE_HOME || path.join(os.homedir(), ".cache");
+  return path.join(base, "create-trpc-appx");
+}
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+// Resolve package.json relative to project root when bundled to dist
+// dist/index.js sits in dist/, root package.json is one level up at build-time
+const packageJsonPath = fs.existsSync(path.resolve(__dirname, "./package.json"))
+  ? path.resolve(__dirname, "./package.json")
+  : path.resolve(__dirname, "../package.json");
 const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, "utf8"));
 
 let projectPath: string = "";
+let invokedSubcommand = false;
+let longRunningSubcommand = false;
 
 const program = new Commander.Command(packageJson.name)
   .version(packageJson.version)
   .arguments("<project-directory>")
   .usage(`${chalk.green("<project-directory>")} [options]`)
-  .action((name) => {
-    projectPath = name;
+  .option("--yes", "Skip prompts and use sensible defaults (non-interactive mode)")
+  .option("--verbose", "Enable verbose logging for troubleshooting")
+
+  .command("doctor")
+  .description(
+    "Diagnose local environment: Node, package managers, Corepack, network/proxy, Git"
+  )
+  .action(async () => {
+    invokedSubcommand = true;
+    await runDoctor();
   })
+  .parent!
+  .command("info [dir]")
+  .description("Print detected project info: package manager, scripts, workspaces, engines")
+  .action(async (dir: string | undefined) => {
+    invokedSubcommand = true;
+    await runInfo(dir);
+  })
+  .parent!
+  .command("run <github-url>")
+  .description(
+    "Fetch, prepare, and run a tRPC example from a GitHub URL (supports subdirectories via --example-path)"
+  )
+  .option("--example-path <path>", "Subdirectory within the repo to use as the example root")
+  .option("--script <name>", "Script to run (default: dev, fallback: start)")
+  .option("--port <number>", "Set PORT environment variable", (v) => parseInt(v, 10))
+  .option("--auto-port", "Automatically pick a free port starting at --port or 3000")
+  .option("--no-install", "Skip dependency installation")
+  .option("--offline", "Run in offline mode (requires cached example)")
+  .option("--no-cache", "Disable cache and force re-download")
+  .option("--cache-dir <path>", "Directory to use for cache (default: XDG cache dir)")
+  .option("--prepare-only", "Download & extract (and optionally install) without running dev/start script")
+  .option("--prebuild <mode>", "Prebuild mode: auto|always|never (default: auto)")
+  .option(
+    "--env <KEY=VALUE>",
+    "Environment variable to pass to the example (repeatable)",
+    (val: string, prev: string[] | undefined) => (prev ? [...prev, val] : [val])
+  )
+  .option("--env-file <path>", "Path to a .env-like file containing KEY=VALUE lines")
+  .action(async (githubUrl: string, opts: any) => {
+    if (opts.verbose) {
+      process.env.CTA_VERBOSE = "1";
+    }
+    invokedSubcommand = true;
+    longRunningSubcommand = true;
+    const parseKv = (s: string): [string, string] | null => {
+      const i = s.indexOf("=");
+      if (i <= 0) return null;
+      const k = s.slice(0, i).trim();
+      const v = s.slice(i + 1);
+      if (!k) return null;
+      return [k, v];
+    };
+    const envPairs: string[] = Array.isArray(opts.env)
+      ? (opts.env as string[])
+      : opts.env
+      ? [opts.env]
+      : [];
+    const envVars: Record<string, string> = {};
+    for (const p of envPairs) {
+      const kv = parseKv(String(p));
+      if (kv) envVars[kv[0]] = kv[1];
+    }
+    if (opts.envFile) {
+      try {
+        const content = fs.readFileSync(path.resolve(String(opts.envFile)), "utf8");
+        for (const line of content.split(/\r?\n/)) {
+          const trimmed = line.trim();
+          if (!trimmed || trimmed.startsWith("#")) continue;
+          const kv = parseKv(trimmed);
+          if (kv && envVars[kv[0]] === undefined) envVars[kv[0]] = kv[1];
+        }
+      } catch (e) {
+        console.log(chalk.yellow(`Could not read env file: ${opts.envFile}`));
+      }
+    }
+    if (process.env.CTA_VERBOSE === "1" || process.env.DEBUG?.startsWith("cta:")) {
+      console.log(chalk.gray("[DEBUG] Running example with options:"), opts);
+    }
+    // Detect package manager from CLI flags for run command
+    let pm = "npm";
+    if (opts.usePnpm) pm = "pnpm";
+    else if (opts.useYarn) pm = "yarn";
+    else if (opts.useNpm) pm = "npm";
+    await runExample({
+      githubUrl,
+      examplePath: opts.examplePath,
+      script: opts.script,
+      port: opts.port,
+      install: opts.install !== false,
+      offline: !!opts.offline,
+      cache: opts.cache !== false,
+      cacheDir: opts.cacheDir,
+      envVars,
+      prepareOnly: !!opts.prepareOnly,
+      autoPort: !!opts.autoPort,
+      prebuildMode: ((): "auto"|"always"|"never" => {
+        const v = String(opts.prebuild || "auto").toLowerCase();
+        return v === "always" || v === "never" ? (v as any) : "auto";
+      })(),
+      packageManager: pm,
+    });
+  })
+  .parent!
   .option(
     "--use-npm",
     `
@@ -58,8 +189,7 @@ const program = new Commander.Command(packageJson.name)
   --example-path foo/bar
 `
   )
-  .allowUnknownOption()
-  .parse(process.argv);
+  .allowUnknownOption();
 
 async function run(): Promise<void> {
   if (typeof projectPath === "string") {
@@ -126,11 +256,12 @@ async function run(): Promise<void> {
     process.exit(1);
   }
 
+  const userConfig = readUserConfig();
   const packageManager = !!program.getOptionValue("useNpm")
     ? "npm"
     : !!program.getOptionValue("usePnpm")
     ? "pnpm"
-    : getPkgManager();
+    : userConfig.packageManager || getPkgManager();
 
   const example =
     typeof program.getOptionValue("example") === "string" &&
@@ -167,7 +298,13 @@ async function run(): Promise<void> {
   }
 }
 
-const update = checkForUpdate(packageJson).catch(() => null);
+type UpdateCheckFn = (
+  pkg: any,
+  options?: any
+) => Promise<{ latest?: string } | null>;
+const update = (checkForUpdate as unknown as UpdateCheckFn)(packageJson).catch(
+  () => null
+);
 
 async function notifyUpdate(): Promise<void> {
   try {
@@ -195,20 +332,30 @@ async function notifyUpdate(): Promise<void> {
   }
 }
 
-run()
-  .then(notifyUpdate)
-  .catch(async (reason) => {
-    console.log();
-    console.log("Aborting installation.");
-    if (reason.command) {
-      console.log(`  ${chalk.cyan(reason.command)} has failed.`);
-    } else {
-      console.log(chalk.red("Unexpected error. Please report it as a bug:"));
-      console.log(reason);
+// Parse CLI and run appropriate command. If no subcommand invoked, run scaffolding flow.
+(async () => {
+  await program.parseAsync(process.argv);
+  if (invokedSubcommand) {
+    if (!longRunningSubcommand) {
+      await notifyUpdate();
     }
-    console.log();
+    return;
+  }
+  run()
+    .then(notifyUpdate)
+    .catch(async (reason) => {
+      console.log();
+      console.log("Aborting installation.");
+      if ((reason as any).command) {
+        console.log(`  ${chalk.cyan((reason as any).command)} has failed.`);
+      } else {
+        console.log(chalk.red("Unexpected error. Please report it as a bug:"));
+        console.log(reason);
+      }
+      console.log();
 
-    await notifyUpdate();
+      await notifyUpdate();
 
-    process.exit(1);
-  });
+      process.exit(1);
+    });
+})();
