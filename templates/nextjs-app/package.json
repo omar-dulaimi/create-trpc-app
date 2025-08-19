@@ -1,0 +1,24 @@
+{
+  "name": "nextjs-trpc-app",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start"
+  },
+  "dependencies": {
+    "next": "^14.0.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "@trpc/server": "^10.45.2",
+    "@trpc/client": "^10.45.2",
+    "@trpc/react-query": "^10.45.2",
+    "zod": "^3.0.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.4.0",
+    "@types/react": "^18.2.33",
+    "@types/node": "^20.10.0"
+  }
+}

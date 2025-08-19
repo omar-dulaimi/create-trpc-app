@@ -1,13 +1,12 @@
 ---
 name: Feature request
 about: Suggest an idea for this project
-title: ''
-labels: ''
-assignees: ''
+title: ""
+labels: ""
+assignees: ""
 ---
 
 Please consider supporting me for faster fixes, responses and features [Sponsor Me](https://github.com/sponsors/omar-dulaimi)
-
 
 ## Problem
 

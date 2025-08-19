@@ -1,0 +1,14 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "run tests",
+      "type": "shell",
+      "command": "npm test",
+      "args": [],
+      "isBackground": false,
+      "problemMatcher": ["$tsc"],
+      "group": "build"
+    }
+  ]
+}

@@ -1,55 +1,74 @@
 name: Bug report
-description: Create a bug report to help us improve Create tRPC App
-labels: 'kind/bug'
+description: File a bug/issue to help us improve
+title: "fix: <short description>"
+labels: [bug]
+assignees: []
 body:
   - type: markdown
     attributes:
       value: |
-        Please consider supporting me for faster fixes, responses and features [Sponsor Me](https://github.com/sponsors/omar-dulaimi)
-  - type: textarea
-    attributes:
-      label: Bug description
-      description: A clear and concise description of what the bug is.
-    validations:
-      required: true
-  - type: textarea
-    attributes:
-      label: How to reproduce
-      description: Steps to reproduce the behavior
-      value: |
-        <!--
-        1. Go to '...'
-        2. Change '....'
-        3. Run '....'
-        4. See error
-        -->
-    validations:
-      required: true
-  - type: textarea
-    attributes:
-      label: Expected behavior
-      description: A clear and concise description of what you expected to happen.
-  - type: textarea
-    attributes:
-      label: tRPC information
-    validations:
-      required: true
-  - type: textarea
-    attributes:
-      label: Environment & setup
-      description: In which environment does the problem occur
-      value: |
-        - OS: <!--[e.g. Mac OS, Windows, Debian, CentOS, ...]-->
-        - Database: <!--[PostgreSQL, MySQL, MariaDB or SQLite]-->
-        - Node.js version: <!--[Run `node -v` to see your Node.js version]-->
-    validations:
-      required: true
-  - type: textarea
-    attributes:
-      label: tRPC Version
-      value: |
-        ```
+        Thanks for taking the time to fill this out. Please check existing issues first.
 
-        ```
+  - type: checkboxes
+    id: preflight
+    attributes:
+      label: Pre-flight
+      description: Please confirm the following before submitting.
+      options:
+        - label: I have searched existing issues for duplicates
+          required: true
+        - label: I’m using the latest version of create-trpc-appx
+          required: true
+        - label: I’ve starred the repository to support the project ⭐
+          required: false
+        - label: I’m considering sponsoring the project to help maintenance 💖
+          required: false
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Description
+      description: What happened? What did you expect to happen?
+      placeholder: Clear and concise description of the problem…
     validations:
       required: true
+
+  - type: textarea
+    id: repro
+    attributes:
+      label: Steps to reproduce
+      description: Provide minimal steps to reproduce the issue.
+      placeholder: |
+        1. Run this command …
+        2. See error …
+    validations:
+      required: true
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs / screenshots
+      description: Paste relevant logs or screenshots. Redact sensitive data.
+      render: shell
+
+  - type: input
+    id: version
+    attributes:
+      label: CLI version
+      placeholder: e.g. 0.0.2
+
+  - type: input
+    id: node
+    attributes:
+      label: Node.js version
+      placeholder: e.g. 20.11.0
+
+  - type: dropdown
+    id: os
+    attributes:
+      label: Operating system
+      options:
+        - macOS
+        - Linux
+  - Windows
+  - Other

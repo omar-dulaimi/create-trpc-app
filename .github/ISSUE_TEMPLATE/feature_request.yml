@@ -1,0 +1,48 @@
+name: Feature request
+description: Suggest an idea or improvement
+title: "feat: <short description>"
+labels: [enhancement]
+assignees: []
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Please describe the problem this feature solves and the proposed solution.
+
+  - type: checkboxes
+    id: support
+    attributes:
+      label: Support the project
+      options:
+        - label: I have starred the repository ⭐
+          required: false
+        - label: I’d consider sponsoring prioritized work on this feature 💖
+          required: false
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem
+      description: What’s the user problem or use-case?
+    validations:
+      required: true
+
+  - type: textarea
+    id: solution
+    attributes:
+      label: Proposed solution
+      description: How would you like this to work? CLI flags, behavior, etc.
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+      description: Other ways to solve this?
+
+  - type: textarea
+    id: additional
+    attributes:
+      label: Additional context
+      description: Links, prior art, screenshots, etc.

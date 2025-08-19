@@ -1,6 +1,6 @@
-import { execSync } from 'child_process'
-import dns from 'dns'
-import url from 'url'
+import { execSync } from "child_process"
+import dns from "dns"
+import url from "url"
 
 function getProxy(): string | undefined {
   if (process.env.https_proxy) {
@@ -8,8 +8,8 @@ function getProxy(): string | undefined {
   }
 
   try {
-    const httpsProxy = execSync('npm config get https-proxy').toString().trim()
-    return httpsProxy !== 'null' ? httpsProxy : undefined
+    const httpsProxy = execSync("npm config get https-proxy").toString().trim()
+    return httpsProxy !== "null" ? httpsProxy : undefined
   } catch (e) {
     return
   }
@@ -17,7 +17,7 @@ function getProxy(): string | undefined {
 
 export function getOnline(): Promise<boolean> {
   return new Promise((resolve) => {
-    dns.lookup('registry.yarnpkg.com', (registryErr) => {
+    dns.lookup("registry.yarnpkg.com", (registryErr) => {
       if (!registryErr) {
         return resolve(true)
       }
