@@ -866,7 +866,32 @@ export async function runExample(opts: RunOptions) {
   }
 
   const cwdBase = rootDir!
+
+  /**
+   * A subdirectory that is not in the archive used to sail straight through:
+   * resolveRunnableDir() would fall back to the (nonexistent) base and
+   * --prepare-only would print "Prepared example at: <missing path>" and exit 0.
+   */
+  if (!fs.existsSync(cwdBase)) {
+    throw new RunnerError(
+      subdir
+        ? `The example path "${subdir}" does not exist in ${owner}/${repo}@${branch}.`
+        : `Downloaded ${owner}/${repo}@${branch} but ${cwdBase} is missing.`,
+      "ERR_EXAMPLE_PATH",
+      { owner, repo, branch, subdir, resolved: cwdBase }
+    )
+  }
+
   const cwd = await resolveRunnableDir(cwdBase)
+
+  if (!readPkgJson(cwd)) {
+    throw new RunnerError(
+      `No package.json found under ${cwd}.` +
+        (subdir ? ` Check that "${subdir}" is the example root.` : ""),
+      "ERR_NO_PACKAGE_JSON",
+      { resolved: cwd, subdir }
+    )
+  }
 
   // Determine workspace root if any (walk up to cwdBase only)
   let wsRoot: string | null = null

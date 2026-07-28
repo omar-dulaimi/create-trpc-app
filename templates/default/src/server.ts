@@ -102,13 +102,11 @@ const appRouter = router({
 export type AppRouter = typeof appRouter
 
 async function main() {
-  // express implementation
   const app = express()
 
+  // request logger
   app.use((req, _res, next) => {
-    // request logger
-    console.log("⬅️ ", req.method, req.path, req.body ?? req.query)
-
+    console.log("<-", req.method, req.path, req.body ?? req.query)
     next()
   })
 
@@ -119,7 +117,12 @@ async function main() {
       createContext,
     })
   )
-  app.get("/", (_req, res) => res.send("hello"))
+
+  // Express 5 handlers must not return a value, hence the block body.
+  app.get("/", (_req, res) => {
+    res.send("hello")
+  })
+
   app.listen(2021, () => {
     console.log("listening on port 2021")
   })

@@ -7,17 +7,50 @@ on:
     branches: [master]
 
 jobs:
-  build-and-smoke:
+  build-and-test:
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        # Must satisfy the engines.node floor in package.json.
+        node-version: [22, 24]
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: ${{ matrix.node-version }}
           cache: npm
       - name: Install deps
         run: npm ci
+      - name: Lint
+        run: npm run lint
+      - name: Typecheck
+        run: npm run typecheck
       - name: Build
         run: npm run build
+      - name: Unit and template tests
+        run: npm test
       - name: Smoke tests
         run: npm run test:smoke
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  # Scaffold each bundled template from the PACKED tarball and prove it builds.
+  # This is the check that would have caught the templates shipping broken while
+  # the rest of the suite stayed green.
+  scaffold:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        node-version: [22, 24]
+        template: [default, vite-react, nextjs-app]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: npm
+      - run: npm ci
+      - name: Scaffold and verify "${{ matrix.template }}" from the packed tarball
+        run: node tests/scaffold.test.mjs ${{ matrix.template }}

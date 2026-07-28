@@ -1,6 +1,4 @@
-import { createTRPCProxyClient } from "@trpc/client"
-import { httpBatchLink } from "@trpc/client/links/httpBatchLink"
-import { loggerLink } from "@trpc/client/links/loggerLink"
+import { createTRPCClient, httpBatchLink, loggerLink } from "@trpc/client"
 import type { AppRouter } from "./server"
 
 const sleep = (ms = 100) => new Promise((resolve) => setTimeout(resolve, ms))
@@ -8,7 +6,7 @@ const sleep = (ms = 100) => new Promise((resolve) => setTimeout(resolve, ms))
 async function main() {
   const url = `http://localhost:2021/trpc`
 
-  const trpc = createTRPCProxyClient<AppRouter>({
+  const trpc = createTRPCClient<AppRouter>({
     links: [loggerLink(), httpBatchLink({ url })],
   })
 
@@ -34,11 +32,12 @@ async function main() {
   try {
     await trpc.admin.secret.query()
   } catch (cause) {
-    // will fail
+    // Expected: this client sends no `authorization` header, so the server
+    // rejects the call with UNAUTHORIZED.
   }
   await sleep()
 
-  const authedClient = createTRPCProxyClient<AppRouter>({
+  const authedClient = createTRPCClient<AppRouter>({
     links: [
       loggerLink(),
       httpBatchLink({
@@ -55,7 +54,7 @@ async function main() {
   const msgs = await trpc.message.listMessages.query()
   console.log("msgs", msgs)
 
-  console.log("👌 should be a clean exit if everything is working right")
+  console.log("Clean exit: every query and mutation above succeeded.")
 }
 
 void main()

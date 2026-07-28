@@ -95,7 +95,6 @@ export function downloadAndExtractRepo(
   root: string,
   { username, name, branch, filePath }: RepoInfo
 ): Promise<void> {
-  // @ts-expect-error
   return pipeline(
     got.stream(`https://codeload.github.com/${username}/${name}/tar.gz/${branch}`),
     tar.extract({ cwd: root, strip: filePath ? filePath.split("/").length + 1 : 1 }, [
@@ -108,7 +107,6 @@ export function downloadAndExtractExample(root: string, name: string): Promise<v
   if (name === "__internal-testing-retry") {
     throw new Error("This is an internal example for testing the CLI.")
   }
-  // @ts-expect-error
   return pipeline(
     got.stream("https://codeload.github.com/trpc/trpc/tar.gz/main"),
     tar.extract({ cwd: root, strip: 3 }, [`trpc-main/examples/${name}`])

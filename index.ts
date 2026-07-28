@@ -12,8 +12,22 @@ import { createApp, DownloadError } from "./create-app.js"
 import { runDoctor } from "./helpers/doctor.js"
 import { getPkgManager } from "./helpers/get-pkg-manager.js"
 import { runInfo } from "./helpers/info.js"
-import { runExample } from "./helpers/run.js"
+import { handleRunnerError, runExample, type RunOptions } from "./helpers/run.js"
 import { validateNpmName } from "./helpers/validate-pkg.js"
+
+/**
+ * `run` failures used to surface as an unhandled promise rejection with a raw
+ * stack trace. Print the actionable message instead and exit non-zero, so
+ * scripts and CI can tell success from failure.
+ */
+async function runExampleOrExit(options: RunOptions): Promise<void> {
+  try {
+    await runExample(options)
+  } catch (error) {
+    handleRunnerError(error)
+    process.exit(1)
+  }
+}
 
 function readUserConfig(): any {
   try {
@@ -44,6 +58,11 @@ let longRunningSubcommand = false
 
 const program = new Commander.Command(packageJson.name)
   .version(packageJson.version)
+  // Options that appear after a subcommand name belong to that subcommand.
+  // Without this, Commander lets the root command consume `--example-path`
+  // before `run` ever sees it, so `run <url> --example-path <dir>` silently
+  // prepared the repository root instead of the requested subdirectory.
+  .enablePositionalOptions()
   // Accept a project directory as an operand for the root command (optional to allow interactive prompt)
   .argument("[project-directory]")
   .usage(`${chalk.green("<project-directory>")} [options]`)
@@ -85,6 +104,12 @@ const program = new Commander.Command(packageJson.name)
     (val: string, prev: string[] | undefined) => (prev ? [...prev, val] : [val])
   )
   .option("--env-file <path>", "Path to a .env-like file containing KEY=VALUE lines")
+  // These four used to be declared only on the root command, so the `run`
+  // action read them as `undefined` and they had no effect at all.
+  .option("--use-npm", "Force npm instead of detecting from the example's lockfile")
+  .option("--use-pnpm", "Force pnpm instead of detecting from the example's lockfile")
+  .option("--use-yarn", "Force yarn instead of detecting from the example's lockfile")
+  .option("--verbose", "Enable verbose logging for troubleshooting")
   .action(async (githubUrl: string, opts: any) => {
     if (opts.verbose) {
       process.env.CTA_VERBOSE = "1"
@@ -125,12 +150,14 @@ const program = new Commander.Command(packageJson.name)
     if (process.env.CTA_VERBOSE === "1" || process.env.DEBUG?.startsWith("cta:")) {
       console.log(chalk.gray("[DEBUG] Running example with options:"), opts)
     }
-    // Detect package manager from CLI flags for run command
-    let pm = "npm"
+    // Only override the package manager when the user explicitly asked for one.
+    // Leaving it undefined lets runExample() detect it from the example's own
+    // lockfile, which is what the docs have always claimed happens.
+    let pm: string | undefined
     if (opts.usePnpm) pm = "pnpm"
     else if (opts.useYarn) pm = "yarn"
     else if (opts.useNpm) pm = "npm"
-    await runExample({
+    await runExampleOrExit({
       githubUrl,
       examplePath: opts.examplePath,
       script: opts.script,
@@ -154,8 +181,7 @@ const program = new Commander.Command(packageJson.name)
     `
 
   Explicitly tell the CLI to bootstrap the app using npm
-`,
-    true
+`
   )
   .option(
     "--use-pnpm",

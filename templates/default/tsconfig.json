@@ -1,13 +1,19 @@
 {
   "compilerOptions": {
-    "lib": ["esnext", "dom"],
-    "target": "esnext",
+    "target": "es2022",
+    "lib": ["es2023"],
+    "module": "esnext",
+    // tRPC 11 publishes its adapters through an "exports" map. The legacy
+    // "node" resolver cannot read one, so subpaths such as
+    // @trpc/server/adapters/express would fail to resolve.
+    "moduleResolution": "bundler",
+    "types": ["node"],
     "esModuleInterop": true,
     "strict": true,
-    "moduleResolution": "node",
     "noEmit": true,
-    "skipLibCheck": true
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true
   },
   "include": ["src"],
-  "exclude": ["node_modules"]
+  "exclude": ["node_modules", "dist"]
 }

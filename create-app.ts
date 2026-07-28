@@ -1,10 +1,9 @@
 /* eslint-disable import/no-extraneous-dependencies */
 import retry from "async-retry"
 import chalk from "chalk"
-import cpy from "cpy"
 import fs from "fs"
 import path from "path"
-import { fileURLToPath } from "url"
+import { copyTemplate } from "./helpers/copy-template.js"
 import {
   downloadAndExtractExample,
   downloadAndExtractRepo,
@@ -20,9 +19,28 @@ import { isFolderEmpty } from "./helpers/is-folder-empty.js"
 import { getOnline } from "./helpers/is-online.js"
 import { isWriteable } from "./helpers/is-writeable.js"
 import { makeDir } from "./helpers/make-dir.js"
-const __dirname = path.dirname(fileURLToPath(import.meta.url))
+import {
+  DEFAULT_TEMPLATE,
+  isTemplate,
+  listTemplates,
+  personalizePackageJson,
+  templateDir,
+} from "./helpers/templates.js"
 
 export class DownloadError extends Error {}
+
+/** Flatten a generated app's declared deps for display, dev deps last. */
+function templateDependencies(root: string): Array<[string, string]> {
+  try {
+    const pkg = JSON.parse(fs.readFileSync(path.join(root, "package.json"), "utf8"))
+    return [
+      ...Object.entries(pkg.dependencies ?? {}),
+      ...Object.entries(pkg.devDependencies ?? {}),
+    ] as Array<[string, string]>
+  } catch {
+    return []
+  }
+}
 
 export async function createApp({
   appPath,
@@ -36,9 +54,15 @@ export async function createApp({
   examplePath?: string
 }): Promise<void> {
   let repoInfo: RepoInfo | undefined
-  const template = "default"
 
-  if (example) {
+  /**
+   * `--example <name>` may name a template bundled with this CLI. Those are
+   * resolved locally and never hit the network. Anything else is looked up in
+   * the official tRPC examples, or treated as a GitHub URL.
+   */
+  const template = !example || isTemplate(example) ? (example ?? DEFAULT_TEMPLATE) : null
+
+  if (example && !template) {
     let repoUrl: URL | undefined
 
     try {
@@ -90,7 +114,10 @@ export async function createApp({
             `"${example}"`
           )}. It could be due to the following:\n`,
           `1. Your spelling of example ${chalk.red(`"${example}"`)} might be incorrect.\n`,
-          `2. You might not be connected to the internet or you are behind a proxy.`
+          `2. You might not be connected to the internet or you are behind a proxy.\n`,
+          `Bundled templates that always work offline: ${listTemplates()
+            .map((t) => chalk.cyan(t))
+            .join(", ")}`
         )
         process.exit(1)
       }
@@ -123,7 +150,7 @@ export async function createApp({
 
   process.chdir(root)
 
-  if (example) {
+  if (!template) {
     /**
      * If an example repository is provided, clone it.
      */
@@ -140,7 +167,7 @@ export async function createApp({
           `Downloading files for example ${chalk.cyan(example)}. This might take a moment.`
         )
         console.log()
-        await retry(() => downloadAndExtractExample(root, example), {
+        await retry(() => downloadAndExtractExample(root, example!), {
           retries: 3,
         } as any)
       }
@@ -157,7 +184,7 @@ export async function createApp({
     // Copy our default `.gitignore` if the application did not provide one
     const ignorePath = path.join(root, ".gitignore")
     if (!fs.existsSync(ignorePath)) {
-      fs.copyFileSync(path.join(__dirname, "templates", template, "gitignore"), ignorePath)
+      fs.copyFileSync(path.join(templateDir(DEFAULT_TEMPLATE), "gitignore"), ignorePath)
     }
 
     console.log("Installing packages. This might take a couple of minutes.")
@@ -166,94 +193,28 @@ export async function createApp({
     await install(root, null, { packageManager, isOnline })
     console.log()
   } else {
-    const templatePath = path.join(__dirname, "templates", template)
     /**
-     * Copy the template files to the target directory.
+     * Copy the bundled template files to the target directory.
      */
-    await cpy("**", root, {
-      cwd: templatePath,
-      parents: true,
-      rename: (name: string) => {
-        switch (name) {
-          case "gitignore":
-          case "eslintrc.json": {
-            return ".".concat(name)
-          }
-          case "README-template.md": {
-            return "README.md"
-          }
-          default: {
-            return name
-          }
-        }
-      },
-    })
+    await copyTemplate(templateDir(template), root)
 
     /**
-     * Otherwise, if an example repository is not provided for cloning, proceed
-     * by installing from a template.
+     * The template's own package.json is the single source of truth for which
+     * versions the generated app gets. Previously this function also passed a
+     * hard-coded dependency list to `install()`, which silently overwrote the
+     * template's declared versions with tRPC 10.
      */
+    personalizePackageJson(root, appName)
+
     console.log(chalk.bold(`Using ${packageManager}.`))
-    /**
-     * These flags will be passed to `install()`.
-     */
-    const installFlags = { packageManager, isOnline }
-    /**
-     * Default dependencies.
-     */
-    const dependencies = [
-      "@trpc/client@^10.45.2",
-      "@trpc/react-query@^10.45.2",
-      "@trpc/server@^10.45.2",
-      "express@^4.17.1",
-      "zod@^3.0.0",
-    ]
-    /**
-     * Default devDependencies.
-     */
-    const devDependencies = [
-      "@types/express@^4.17.17",
-      "@types/node@^20.10.0",
-      "@types/react@^18.2.33",
-      "esbuild@^0.17.10",
-      "eslint@^8.40.0",
-      "npm-run-all@^4.1.5",
-      "start-server-and-test@^1.12.0",
-      "tsx@^4.0.0",
-      "typescript@^5.4.0",
-      "wait-port@^1.0.1",
-    ]
-    /**
-     * TypeScript projects will have type definitions and other devDependencies.
-     */
-    // devDependencies.push("typescript", "@types/node");
-    /**
-     * Install package.json dependencies if they exist.
-     */
-    if (dependencies.length) {
-      console.log()
-      console.log("Installing dependencies:")
-      for (const dependency of dependencies) {
-        console.log(`- ${chalk.cyan(dependency)}`)
-      }
-      console.log()
-
-      await install(root, dependencies, installFlags)
+    console.log()
+    console.log(`Installing dependencies declared by the ${chalk.cyan(template)} template:`)
+    for (const [name, range] of templateDependencies(root)) {
+      console.log(`- ${chalk.cyan(`${name}@${range}`)}`)
     }
-    /**
-     * Install package.json devDependencies if they exist.
-     */
-    if (devDependencies.length) {
-      console.log()
-      console.log("Installing devDependencies:")
-      for (const devDependency of devDependencies) {
-        console.log(`- ${chalk.cyan(devDependency)}`)
-      }
-      console.log()
+    console.log()
 
-      const devInstallFlags = { devDependencies: true, ...installFlags }
-      await install(root, devDependencies, devInstallFlags)
-    }
+    await install(root, null, { packageManager, isOnline })
     console.log()
   }
 
