@@ -9,6 +9,9 @@
 //
 // Usage: node tests/scaffold.test.mjs [template ...]
 //        node tests/scaffold.test.mjs            # all bundled templates
+//
+// Negative control: CTA_BREAK_PACKAGE=drop-templates|trpc-v10 damages the
+// package before it is packed, and the run must then FAIL. See BREAK_MODES.
 import assert from "node:assert"
 import { execFileSync } from "node:child_process"
 import fs from "node:fs"
@@ -72,6 +75,57 @@ function majorOf(range) {
   )
 }
 
+/**
+ * Negative control. Each mode damages the assembled package in a way that
+ * reproduces a defect this file is supposed to catch. CI runs the script once
+ * per mode and requires a NON-ZERO exit: if a deliberately broken package still
+ * passes, the checks below are inert and a green scaffold job proves nothing.
+ */
+const BREAK_MODES = {
+  // A packaging rule that omits required runtime assets. This is the defect
+  // class the whole file exists for: the tarball looks fine, installs fine, and
+  // then has nothing to scaffold from.
+  "drop-templates": (packDir) => {
+    const dir = path.join(packDir, "dist", "templates")
+    assert.ok(fs.existsSync(dir), `nothing to break: ${dir} does not exist`)
+    fs.rmSync(dir, { recursive: true, force: true })
+  },
+  // A manifest pinned to the end-of-life tRPC major, which is what actually
+  // reached users. Proves the declared/installed version assertions are live.
+  "trpc-v10": (packDir) => {
+    const p = path.join(packDir, "dist", "templates", "default", "package.json")
+    const pkg = readJson(p)
+    let touched = 0
+    for (const field of ["dependencies", "devDependencies"]) {
+      for (const dep of Object.keys(pkg[field] ?? {})) {
+        if (dep.startsWith("@trpc/")) {
+          pkg[field][dep] = "^10.45.2"
+          touched++
+        }
+      }
+    }
+    assert.ok(touched > 0, `nothing to break: no @trpc/* dependency in ${p}`)
+    fs.writeFileSync(p, JSON.stringify(pkg, null, 2))
+  },
+}
+
+/**
+ * Applied after package.sh and before `npm pack`, so the damage is carried by
+ * the tarball that the rest of this script installs and runs.
+ */
+function applyNegativeControl(packDir) {
+  const mode = process.env.CTA_BREAK_PACKAGE
+  if (!mode) return
+  const breaker = BREAK_MODES[mode]
+  assert.ok(
+    breaker,
+    `unknown CTA_BREAK_PACKAGE mode "${mode}", expected one of: ${Object.keys(BREAK_MODES).join(", ")}`
+  )
+  console.log(`\n!! NEGATIVE CONTROL: damaging the packaged artifact ("${mode}")`)
+  console.log("!! This run is REQUIRED to fail. If it passes, the checks below test nothing.")
+  breaker(packDir)
+}
+
 const workDir = fs.mkdtempSync(path.join(os.tmpdir(), "cta-scaffold-"))
 console.log(`work dir: ${workDir}`)
 
@@ -84,6 +138,8 @@ try {
   sh("bash", ["package.sh"], { cwd: repoRoot })
 
   const packDir = path.join(repoRoot, "package")
+  applyNegativeControl(packDir)
+
   // --json, because npm interleaves warnings with the filename on stdout.
   const packOut = sh("npm", ["pack", "--pack-destination", workDir, "--json"], {
     cwd: packDir,

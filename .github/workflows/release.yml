@@ -3,31 +3,96 @@ name: release
 on:
   push:
     branches: [master]
+  workflow_dispatch:
 
-permissions:
-  contents: write # needed to push tags and create releases
-  issues: write # needed for @semantic-release/github to open fail issues
-  pull-requests: write
+concurrency:
+  group: release
+  cancel-in-progress: false
 
 jobs:
+  # Nothing is published unless lint, typecheck, the unit and template tests, the
+  # smoke tests, all six scaffold-from-tarball legs and the negative control have
+  # passed on this commit.
+  verify:
+    if: "!contains(github.event.head_commit.message, '[skip ci]')"
+    permissions:
+      contents: read
+    uses: ./.github/workflows/ci.yml
+
   release:
+    needs: verify
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      issues: write
+      pull-requests: write
+      # Required. @semantic-release/npm requests a GitHub OIDC token and exchanges
+      # it with npm for a short-lived publish credential. The npm account has
+      # "Require two-factor authentication and disallow tokens" enabled, so there
+      # is no token to fall back on: without this permission there is no auth.
+      id-token: write
+    env:
+      # semantic-release pushes the release commit and tag, which would otherwise
+      # fire the pre-push hook (format:check + lint) mid-release. Also stops husky
+      # from installing hooks during npm ci.
+      HUSKY: 0
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           fetch-depth: 0
-      - uses: actions/setup-node@v4
+          persist-credentials: false
+
+      # Deliberately no `registry-url`: it writes an .npmrc containing an
+      # authToken placeholder, which gets in the way of the OIDC exchange below.
+      #
+      # Node 24, not 22: the exchange needs npm >= 11.5.1 and Node 22 still
+      # bundles npm 10.
+      - uses: actions/setup-node@v6
         with:
-          node-version: 20
+          node-version: "24.x"
           cache: npm
+
       - run: npm ci
-      - run: npm run build
-      - name: Release
+
+      # Guards the trap that silently disabled OIDC here before: semantic-release
+      # 23/24 depends on @semantic-release/npm ^12 and installs a nested copy that
+      # shadows the hoisted one, publishing through the old token-only path. That
+      # is exactly what the last failed run did, from
+      # node_modules/semantic-release/node_modules/@semantic-release/npm.
+      - name: Assert a single, OIDC-capable @semantic-release/npm
+        run: |
+          set -euo pipefail
+          nested=$(find node_modules -path '*/node_modules/@semantic-release/npm/package.json')
+          if [ -n "$nested" ]; then
+            echo "::error::A nested @semantic-release/npm shadows the hoisted one, which would publish through the non-OIDC path:"
+            echo "$nested"
+            exit 1
+          fi
+          # Read the manifests as files. Both packages have an `exports` map that
+          # does not expose ./package.json, so require("<pkg>/package.json")
+          # throws ERR_PACKAGE_PATH_NOT_EXPORTED.
+          node -e '
+            const fs = require("fs");
+            const versionOf = (p) => JSON.parse(fs.readFileSync(p, "utf8")).version;
+            const npmPlugin = versionOf("node_modules/@semantic-release/npm/package.json");
+            const sr = versionOf("node_modules/semantic-release/package.json");
+            const major = (s) => Number(s.split(".")[0]);
+            if (major(npmPlugin) < 13) throw new Error(`@semantic-release/npm ${npmPlugin} predates trusted publishing, need >= 13`);
+            if (major(sr) < 25) throw new Error(`semantic-release ${sr} pulls in @semantic-release/npm v12, need >= 25`);
+            console.log(`ok: semantic-release ${sr} with a single @semantic-release/npm ${npmPlugin}`);
+          '
+
+      # Assembles ./package, the curated directory this project publishes.
+      # Must run BEFORE semantic-release: @semantic-release/npm reads
+      # package/package.json during verifyConditions, at the very start of the
+      # run, and aborts with ENOPKG if it is not there. package.sh runs the build
+      # itself.
+      - name: Assemble the publishable package
+        run: ./package.sh
+
+      # No NPM_TOKEN: the npm account disallows tokens, so auth is the OIDC
+      # exchange alone. Setting one here would write a conflicting .npmrc.
+      - name: Semantic release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-          HUSKY: 0
-        run: |
-          # Ensure generated files (e.g., CHANGELOG.md) won’t fail formatting hooks
-          npx prettier --write . || true
-          npx semantic-release
+        run: npm run release

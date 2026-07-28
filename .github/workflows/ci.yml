@@ -5,6 +5,15 @@ on:
     branches: [master]
   pull_request:
     branches: [master]
+  # Lets release.yml gate publishing on this entire workflow.
+  workflow_call:
+
+concurrency:
+  # github.workflow resolves to the CALLER's name when this is reached through
+  # workflow_call, so a release run and its triggering push do not cancel
+  # each other.
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
   build-and-test:
@@ -15,8 +24,8 @@ jobs:
         # Must satisfy the engines.node floor in package.json.
         node-version: [22, 24]
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v6
         with:
           node-version: ${{ matrix.node-version }}
           cache: npm
@@ -38,6 +47,12 @@ jobs:
   # Scaffold each bundled template from the PACKED tarball and prove it builds.
   # This is the check that would have caught the templates shipping broken while
   # the rest of the suite stayed green.
+  #
+  # tests/scaffold.test.mjs runs package.sh, npm pack, installs the tarball into
+  # an empty directory outside the repo, runs the README's headline command from
+  # that install, and asserts on the generated files and on real output markers.
+  # Exit code alone would prove nothing here: with its templates missing this CLI
+  # prints ENOENT and still exits 0.
   scaffold:
     runs-on: ubuntu-latest
     strategy:
@@ -46,11 +61,38 @@ jobs:
         node-version: [22, 24]
         template: [default, vite-react, nextjs-app]
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v6
         with:
           node-version: ${{ matrix.node-version }}
           cache: npm
       - run: npm ci
       - name: Scaffold and verify "${{ matrix.template }}" from the packed tarball
         run: node tests/scaffold.test.mjs ${{ matrix.template }}
+
+  # A check that cannot fail proves nothing. Damage the packaged artifact on
+  # purpose and require the scaffold check to catch it.
+  scaffold-negative-control:
+    name: Negative control for the scaffold check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: A deliberately broken package must fail the scaffold check
+        run: |
+          set -uo pipefail
+          for mode in drop-templates trpc-v10; do
+            echo "::group::negative control: $mode"
+            if CTA_BREAK_PACKAGE="$mode" node tests/scaffold.test.mjs default; then
+              echo "::endgroup::"
+              echo "::error::The scaffold check PASSED with a deliberately broken package ($mode), so it is not testing what it claims."
+              exit 1
+            fi
+            echo "::endgroup::"
+            echo "ok: mode '$mode' was correctly rejected by the scaffold check"
+          done
+          echo "Both negative controls behaved correctly."
