@@ -2,6 +2,7 @@
   "name": "create-trpc-appx",
   "//": "Not the source of truth for releases: semantic-release derives the next version from git tags and writes it into package/package.json at publish time. Kept in step with the latest published version so a manual `npm run package:publish` cannot silently target an existing one.",
   "version": "1.0.2",
+  "private": true,
   "type": "module",
   "keywords": [
     "trpc",
@@ -27,7 +28,7 @@
     "build": "rimraf dist && tsup index.ts helpers/run.ts helpers/templates.ts helpers/copy-template.ts --format esm --dts && cp -r templates dist",
     "doctor": "node dist/index.js doctor",
     "typecheck": "tsc --noEmit",
-    "test": "npm run build && node tests/run.test.mjs && node tests/pm.test.mjs && node tests/templates.test.mjs",
+    "test": "npm run build && node tests/run.test.mjs && node tests/pm.test.mjs && node tests/templates.test.mjs && node tests/publish-hygiene.test.mjs",
     "release": "semantic-release",
     "package:publish": "./package.sh && cd package && npm publish",
     "test:smoke": "node tests/smoke.mjs",

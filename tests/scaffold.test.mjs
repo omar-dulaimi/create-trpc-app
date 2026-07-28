@@ -140,12 +140,17 @@ try {
   const packDir = path.join(repoRoot, "package")
   applyNegativeControl(packDir)
 
-  // --json, because npm interleaves warnings with the filename on stdout.
+  // --json, so the filename comes back as data rather than as one line among
+  // npm's warnings. Parsing the whole stream is deliberate: package.sh strips
+  // `scripts` from the published manifest, so nothing runs here that could
+  // print over npm's output. This used to slice from the first "[" to step over
+  // husky's ".git can't be found", which `prepare` emitted from inside
+  // package/. See tests/publish-hygiene.test.mjs.
   const packOut = sh("npm", ["pack", "--pack-destination", workDir, "--json"], {
     cwd: packDir,
     capture: true,
   })
-  const packed = JSON.parse(packOut.slice(packOut.indexOf("[")))[0].filename
+  const packed = JSON.parse(packOut)[0].filename
   const tarball = path.join(workDir, packed)
   assert.ok(fs.existsSync(tarball), `npm pack produced no tarball: ${tarball}`)
   console.log(`packed: ${tarball}`)
